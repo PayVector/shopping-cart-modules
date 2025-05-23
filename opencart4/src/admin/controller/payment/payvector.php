@@ -121,23 +121,46 @@ class Payvector extends \Opencart\System\Engine\Extension\Payvector\Controller
 		$this->load->model('localisation/order_status');
 		$data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
 
-
 		$data['save'] = $this->url->link('extension/payvector/payment/payvector' . _SEPARATOR_ . 'save', 'user_token=' . $this->session->data['user_token']);
 		$data['back'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment');
 
-		foreach ($this->config_keys as $key) {
-			$full_key = $this->eName . '_' . $key;
-			if (isset($this->request->post[$full_key])) {
-				$data[$full_key] = $this->request->post[$full_key];
-			} else {
-				$data[$full_key] = $this->config->get($full_key);
+		if(empty($data[$this->eName . '_title']))
+		{
+			$data[$this->eName . '_title'] = "Credit/Debit card";
+		}
+		
+		$data[$this->eName . '_status'] = $this->config->get($this->eName . '_status');
+		$data[$this->eName . '_geo_zone_id'] = $this->config->get($this->eName . '_geo_zone_id');
+		
+		$defaultSuccessfulOrderStatus = 'Processing';
+		$defaultFailedOrderStatus = 'Failed';
+
+		$defaultSuccessfulOrderStatusID = '';
+		$defaultFailedOrderStatusID = '';
+
+		foreach ($data['order_statuses'] as $status) {
+			if (strtolower($status['name']) === strtolower($defaultSuccessfulOrderStatus)) {
+				$defaultSuccessfulOrderStatusID = $status['order_status_id'];
+			}
+			if (strtolower($status['name']) === strtolower($defaultFailedOrderStatus)) {
+				$defaultFailedOrderStatusID = $status['order_status_id'];
 			}
 		}
+		
+		$data[$this->eName . '_order_status_id'] = $this->config->get($this->eName . '_order_status_id') ? : $defaultSuccessfulOrderStatusID;
+		$data[$this->eName . '_failed_order_status_id'] = $this->config->get($this->eName . '_failed_order_status_id') ? : $defaultFailedOrderStatusID;
 
-		if(empty($data['payment_payvector_title']))
-		{
-			$data['payment_payvector_title'] = "Credit/Debit card";
-		}
+		$data[$this->eName . '_capture_method'] = $this->config->get($this->eName . '_capture_method') ? : 'Hosted Payment Form';
+		$data[$this->eName . '_pre_shared_key'] = $this->config->get($this->eName . '_pre_shared_key');
+		$data[$this->eName . '_result_delivery_method'] = $this->config->get($this->eName . '_result_delivery_method');
+		$data[$this->eName . '_hash_method'] = $this->config->get($this->eName . '_hash_method') ? : 'SHA1';
+		$data[$this->eName . '_mid'] = $this->config->get($this->eName . '_mid');
+		$data[$this->eName . '_pass'] = $this->config->get($this->eName . '_pass');
+		$data[$this->eName . '_test'] = $this->config->get($this->eName . '_test');
+		$data[$this->eName . '_transaction_type'] = $this->config->get($this->eName . '_transaction_type');
+		$data[$this->eName . '_sort_order'] = $this->config->get($this->eName . '_sort_order');
+		$data[$this->eName . '_enable_cross_reference'] = $this->config->get($this->eName . '_enable_cross_reference');
+		$data[$this->eName . '_enable_3ds_cross_reference'] = $this->config->get($this->eName . '_enable_3ds_cross_reference');
 
 		$this->load->model('localisation/language');
 
@@ -164,11 +187,11 @@ class Payvector extends \Opencart\System\Engine\Extension\Payvector\Controller
 
 		error_log(print_r($this->error, true));
 
-		if (empty($this->request->post['payment_payvector_mid'])) {
+		if (empty($this->request->post[$this->eName . '_mid'])) {
 			$json['error']['mid'] = $this->language->get('error_mid');
 		}
 
-		if (empty($this->request->post['payment_payvector_pass'])) {
+		if (empty($this->request->post[$this->eName . '_pass'])) {
 			$json['error']['pass'] = $this->language->get('error_pass');
 		}
 
