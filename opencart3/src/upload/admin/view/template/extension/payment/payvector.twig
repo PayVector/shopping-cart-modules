@@ -1,0 +1,282 @@
+{{ header }}{{ column_left }}
+
+<div id="content">
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="pull-right">
+                <button type="submit" form="payvector-form" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary">
+                    <i class="fa fa-save"></i>
+                </button>
+                <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default">
+                    <i class="fa fa-reply"></i>
+                </a>
+            </div>
+            <h1>{{ heading_title }}</h1>
+            <ul class="breadcrumb">
+                {% for breadcrumb in breadcrumbs %}
+                    <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="container-fluid">
+        {# 
+        <div class="alert alert-info">
+            <img src="view/image/extension/payment/payvector_secure.png" /><br />
+            <strong>Version:</strong> {{ heading_version }}<br />
+            <strong>Build Date:</strong> {{ heading_builddate }}<br /><br />
+            <a href="http://www.payvector.co.uk/" target="_blank">Visit PayVector.co.uk</a><br />
+            <a href="https://mms.payvector.net" target="_blank">PayVector Merchant Management System (MMS)</a>
+        </div>
+        #}
+        {% if success %}
+            <div class="alert alert-success">{{ success }}</div>
+        {% endif %}
+        {% if error_warning %}
+            <div class="alert alert-danger">{{ error_warning }}</div>
+        {% endif %}
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-pencil"></i> Settings</h3>
+            </div>
+            <div class="panel-body">
+                <form action="{{ action }}" method="post" enctype="multipart/form-data" id="payvector-form" class="form-horizontal">
+                    <div class="form-group required">
+                        <label class="col-sm-3 control-label" for="payment_payvector_status">
+                            <span data-toggle="tooltip" title="Enable or Disable this payment module.">{{ entry_status }}</span>
+                        </label>
+                        <div class="col-sm-9">
+                            <select name="payment_payvector_status" class="form-control">
+                                {% if payment_payvector_status %}
+                                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                                    <option value="0">{{ text_disabled }}</option>
+                                {% else %}
+                                    <option value="1">{{ text_enabled }}</option>
+                                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group required">
+                        <label class="col-sm-3 control-label" for="payment_payvector_title">
+                            <span data-toggle="tooltip" title="{{ help_title }}">{{ entry_title }}</span>
+                        </label>
+                        <div class="col-sm-9">
+                            <input class="form-control" type="text" name="payment_payvector_title" value="{{ payment_payvector_title }}" />
+                        </div>
+                    </div>
+                    
+                    <div class="form-group required">
+                        <label class="col-sm-3 control-label" for="payment_payvector_capture_method">
+                            <span data-toggle="tooltip" title="{{ help_capture_method }}">{{ entry_capture_method }}</span>
+                        </label>
+                        <div class="col-sm-9">
+                            <select name="payment_payvector_capture_method" class="form-control">
+                                <option value="{{ text_capture_method_direct }}" {% if payment_payvector_capture_method == text_capture_method_direct %}selected="selected"{% endif %}>{{ text_capture_method_direct }}</option>
+                                <option value="{{ text_capture_method_hpf }}" {% if payment_payvector_capture_method == text_capture_method_hpf %}selected="selected"{% endif %}>{{ text_capture_method_hpf }}</option>
+                                <!--option value="{{ text_capture_method_transparent }}" {% if payment_payvector_capture_method == text_capture_method_transparent %}selected="selected"{% endif %}>{{ text_capture_method_transparent }}</option-->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group required">
+                        <label class="col-sm-3 control-label" for="payment_payvector_mid">
+                            <span data-toggle="tooltip" title="{{ help_mid }}">{{ entry_mid }}</span>
+                        </label>
+                        <div class="col-sm-9">
+                            <input class="form-control" type="text" name="payment_payvector_mid" value="{{ payment_payvector_mid }}" />
+                            {% if error_mid %}
+                                <div class="alert alert-danger">{{ error_mid }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-group required">
+                        <label class="col-sm-3 control-label" for="payment_payvector_pass">
+                            <span data-toggle="tooltip" title="{{ help_pass }}">{{ entry_pass }}</span>
+                        </label>
+                        <div class="col-sm-9">
+                            <input class="form-control" type="password" name="payment_payvector_pass" value="{{ payment_payvector_pass }}" />
+                            {% if error_pass %}
+                                <div class="alert alert-danger">{{ error_pass }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="hpf-transparent-container">
+                        <div class="form-group required hpf-transparent-settings">
+                            <label class="col-sm-3 control-label" for="payment_payvector_pre_shared_key">
+                                <span data-toggle="tooltip" title="{{ help_pre_shared_key }}">{{ entry_pre_shared_key }}</span>
+                            </label>
+                            <div class="col-sm-9">
+                                <input class="form-control" type="password" name="payment_payvector_pre_shared_key" value="{{ payment_payvector_pre_shared_key }}" />
+                            </div>
+                        </div>
+                        <div class="form-group required hpf-transparent-settings">
+                            <label class="col-sm-3 control-label" for="payment_payvector_hash_method">
+                                <span data-toggle="tooltip" title="{{ help_hash_method }}">{{ entry_hash_method }}</span>
+                            </label>
+                            <div class="col-sm-9">
+                                <select class="form-control" name="payment_payvector_hash_method">
+                                    <option value="MD5" {% if payment_payvector_hash_method == "MD5" %}selected="selected"{% endif %}>MD5</option>
+                                    <option value="HMACMD5" {% if payment_payvector_hash_method == "HMACMD5" %}selected="selected"{% endif %}>HMACMD5</option>
+                                    <option value="SHA1" {% if payment_payvector_hash_method == "SHA1" %}selected="selected"{% endif %}>SHA1</option>
+                                    <option value="HMACSHA1" {% if payment_payvector_hash_method == "HMACSHA1" %}selected="selected"{% endif %}>HMACSHA1</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group required hpf-settings">
+                            <label class="col-sm-3 control-label" for="payment_payvector_result_delivery_method">
+                                <span data-toggle="tooltip" title="{{ help_result_delivery_method }}">{{ entry_result_delivery_method }}</span>
+                            </label>
+                            <div class="col-sm-9">
+                                <select class="form-control" name="payment_payvector_result_delivery_method">
+                                    <option value="POST" {% if payment_payvector_result_delivery_method == "POST" %}selected="selected"{% endif %}>{{ text_result_delivery_method_post }}</option>
+                                    <option value="SERVER_PULL" {% if payment_payvector_result_delivery_method == "SERVER_PULL" %}selected="selected"{% endif %}>{{ text_result_delivery_method_server_pull }}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label" for="payment_payvector_transaction_type">
+                            <span data-toggle="tooltip" title="{{ help_transaction_type }}">{{ entry_transaction_type }}</span>
+                        </label>
+                        <div class="col-sm-9">
+                            <select class="form-control" name="payment_payvector_transaction_type">
+                                <option value="SALE" {% if payment_payvector_transaction_type == "SALE" %}selected="selected"{% endif %}>{{ text_transaction_type_sale }}</option>
+                                <option value="PREAUTH" {% if payment_payvector_transaction_type == "PREAUTH" %}selected="selected"{% endif %}>{{ text_transaction_type_preauth }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label" for="payment_payvector_enable_cross_reference">
+                            <span data-toggle="tooltip" title="{{ help_enable_cross_reference }}">{{ entry_enable_cross_reference }}</span>
+                        </label>
+                        <div class="col-sm-9">
+                            <select name="payment_payvector_enable_cross_reference" class="form-control">
+                                {% if payment_payvector_enable_cross_reference %}
+                                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                                    <option value="0">{{ text_disabled }}</option>
+                                {% else %}
+                                    <option value="1">{{ text_enabled }}</option>
+                                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label" for="payment_payvector_enable_3ds_cross_reference">
+                            <span data-toggle="tooltip" title="{{ help_enable_3ds_cross_reference }}">{{ entry_enable_3ds_cross_reference }}</span>
+                        </label>
+                        <div class="col-sm-9">
+                            <select name="payment_payvector_enable_3ds_cross_reference" class="form-control">
+                                {% if payment_payvector_enable_3ds_cross_reference %}
+                                    <option value="1" selected="selected">{{ text_enabled }}</option>
+                                    <option value="0">{{ text_disabled }}</option>
+                                {% else %}
+                                    <option value="1">{{ text_enabled }}</option>
+                                    <option value="0" selected="selected">{{ text_disabled }}</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label" for="payvector_type">
+                            <span data-toggle="tooltip" title="{{ help_order_status }}">{{ entry_order_status }}</span>
+                        </label>
+                        <div class="col-sm-9">
+                            <select class="form-control" name="payment_payvector_order_status_id">
+                                {% for order_status in order_statuses %}
+                                    <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_payvector_order_status_id %}selected="selected"{% endif %}>
+                                        {{ order_status.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label" for="payment_payvector_failed_order_status_id">
+                            <span data-toggle="tooltip" title="{{ help_failed_order_status }}">{{ entry_failed_order_status }}</span>
+                        </label>
+                        <div class="col-sm-9">
+                            <select class="form-control" name="payment_payvector_failed_order_status_id">
+                                {% for order_status in order_statuses %}
+                                    <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_payvector_failed_order_status_id %}selected="selected"{% endif %}>
+                                        {{ order_status.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label" for="payment_payvector_geo_zone_id">
+                            <span data-toggle="tooltip" title="{{ help_geo_zone }}">{{ entry_geo_zone }}</span>
+                        </label>
+                        <div class="col-sm-9">
+                            <select class="form-control" name="payment_payvector_geo_zone_id">
+                                <option value="0">{{ text_all_zones }}</option>
+                                {% for geo_zone in geo_zones %}
+                                    <option value="{{ geo_zone.geo_zone_id }}" {% if geo_zone.geo_zone_id == payment_payvector_geo_zone_id %}selected="selected"{% endif %}>
+                                        {{ geo_zone.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-group .alert.alert-danger {
+        margin: 10px 0 0;
+    }
+</style>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script>
+    var jQuery_1_10_2 = jQuery.noConflict(true);
+
+    jQuery_1_10_2(document).ready(function() {
+        var hpfSettings = $(".hpf-settings");
+        var hpfTransparentSettings = $(".hpf-transparent-settings");
+        var hpfTransparentContainer = $(".hpf-transparent-container");
+        var captureMethod = $("select[name='payment_payvector_capture_method']").val();
+
+        if (captureMethod === "{{ text_capture_method_direct }}") {
+            hpfTransparentContainer.hide();
+            // hpfSettings.hide();
+            // hpfTransparentSettings.hide();
+        } else if (captureMethod === "{{ text_capture_method_transparent }}") {
+            hpfSettings.hide();
+        }
+
+        jQuery_1_10_2("#content").on("click change keyup", "select[name='payment_payvector_capture_method']", function(){
+            if ($(this).val() === "{{ text_capture_method_direct }}") {
+                hpfTransparentContainer.slideUp();
+                hpfSettings.hide();
+                // hpfTransparentSettings.hide();
+            } else if ($(this).val() === "{{ text_capture_method_hpf }}") {
+                hpfSettings.slideDown();
+                // hpfTransparentSettings.show();
+                hpfTransparentContainer.slideDown();
+            } else {
+                hpfSettings.hide();
+                // hpfTransparentSettings.show();
+                hpfTransparentContainer.slideDown();
+            }
+        });
+    });
+</script>
+
+{{ footer }}

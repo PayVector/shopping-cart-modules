@@ -1,0 +1,14 @@
+{{ header }}
+<div class="container">
+    <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+            <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+    </ul>
+    <div id="content">
+        <h1>{{ payment_failed_title }}</h1>
+        <p>{{ text_payment_failed_error }}</p>
+        <p>{{ text_payment_failed_redirect }}</p>
+    </div>
+</div>
+{{ footer }}

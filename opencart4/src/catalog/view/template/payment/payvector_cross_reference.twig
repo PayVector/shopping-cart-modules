@@ -1,0 +1,294 @@
+<div class="form-horizontal">
+    <fieldset id="payment" class="mb-2">
+        <legend>{{ text_credit_card }}</legend>
+
+        {% if capture_method == text_capture_method_transparent %}
+            <form id="transparentRedirectForm" action="{{ TransparentRedirectURL }}" method="POST">
+
+                <input type="hidden" name="HashDigest" value="{{ HashDigest }}" />
+                <input type="hidden" name="MerchantID" value="{{ MerchantID }}" />
+                <input type="hidden" name="Amount" value="{{ Amount }}" />
+                <input type="hidden" name="CurrencyCode" value="{{ CurrencyCode }}" />
+                <input type="hidden" name="EchoAVSCheckResult" value="true" />
+                <input type="hidden" name="EchoCV2CheckResult" value="true" />
+                <input type="hidden" name="EchoThreeDSecureAuthenticationCheckResult" value="true" />
+                <input type="hidden" name="EchoCardType" value="true" />
+                <input type="hidden" name="OrderID" value="{{ OrderID }}" />
+                <input type="hidden" name="TransactionType" value="{{ TransactionType }}" />
+                <input type="hidden" name="TransactionDateTime" value="{{ TransactionDateTime }}" />
+                <input type="hidden" name="CallbackURL" value="{{ CallbackURL|e('html_attr') }}" />
+                <input type="hidden" name="OrderDescription" value="{{ OrderDescription }}" />
+                <input type="hidden" name="Address1" value="{{ Address1|e('html_attr') }}" />
+                <input type="hidden" name="Address2" value="{{ Address2|e('html_attr') }}" />
+                <input type="hidden" name="Address3" value="{{ Address3|e('html_attr') }}" />
+                <input type="hidden" name="Address4" value="{{ Address4|e('html_attr') }}" />
+                <input type="hidden" name="City" value="{{ City|e('html_attr') }}" />
+                <input type="hidden" name="State" value="{{ State|e('html_attr') }}" />
+                <input type="hidden" name="PostCode" value="{{ Postcode|e('html_attr') }}" />
+                <input type="hidden" name="CountryCode" value="{{ CountryCode }}" />
+                <input type="hidden" name="EmailAddress" value="{{ EmailAddress|e('html_attr') }}" />
+                <input type="hidden" name="PhoneNumber" value="{{ PhoneNumber|e('html_attr') }}" />
+        {% endif %}
+
+        <div class="form-group">
+            <span class="col-sm-12">
+                {{ entry_cc_used_saved }}
+                <input id="storedCard" type="radio" name="payment_type" value="stored_card" checked />
+            </span>
+        </div>
+
+        {% if capture_method == text_capture_method_hpf %}
+            <div class="form-group">
+                <span class="col-sm-12">
+                    {{ entry_cross_reference_hpf }}
+                    <input id="newCard" type="radio" name="payment_type" value="new_card" />
+                </span>
+            </div>
+        {% else %}
+            <div class="form-group">
+                <span class="col-sm-12">
+                    {{ entry_cc_enter_new }}
+                    <input id="newCard" type="radio" name="payment_type" value="new_card" />
+                </span>
+            </div>
+            <hr>
+            <div class="form-group required cardDetailsInput">
+                <label class="col-sm-3 control-label" for="CardName">{{ entry_cc_owner }}</label>
+                <div class="col-sm-9">
+                    <input type="text" name="CardName" id="CardName" value="" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group required cardDetailsInput">
+                <label class="col-sm-3 control-label" for="CardNumber">{{ entry_cc_number }}</label>
+                <div class="col-sm-9">
+                    <input type="text" name="CardNumber" id="CardNumber" value="" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group required cardDetailsInput">
+                <label class="col-sm-3 control-label" for="ExpiryDateMonth">{{ entry_cc_expire_month }}</label>
+                <div class="col-sm-9">
+                    <select name="ExpiryDateMonth" id="ExpiryDateMonth" class="form-control">
+                        <option value="">--</option>
+                        {% for month in months %}
+                            <option value="{{ month.value }}">{{ month.text }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group required cardDetailsInput">
+                <label class="col-sm-3 control-label" for="ExpiryDateYear">{{ entry_cc_expire_year }}</label>
+                <div class="col-sm-9">
+                    <select name="ExpiryDateYear" id="ExpiryDateYear" class="form-control">
+                        <option value="">--</option>
+                        {% for year in year_expire %}
+                            <option value="{{ year.value }}">{{ year.text }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group cardDetailsInput">
+                <label class="col-sm-3 control-label" for="IssueNumber">{{ entry_cc_issue }}</label>
+                <div class="col-sm-9">
+                    <input type="text" name="IssueNumber" id="IssueNumber" value="" class="form-control" />
+                </div>
+            </div>
+        {% endif %}
+
+        <div id="cvv_row" class="form-group required">
+            <label class="col-sm-3 control-label" for="CV2">{{ entry_cc_cvv2 }}</label>
+            <div class="col-sm-9">
+                <input type="text" name="CV2" id="CV2" value="" class="form-control" />
+            </div>
+        </div>
+
+        <!-- 3DSv2 -->
+        <input type="hidden" name="browserjavaenabled" id="browserJavaEnabled" value="">
+        <input type="hidden" name="browserlanguage" id="browserLanguage" value="">
+        <input type="hidden" name="browsercolordepth" id="browserColorDepth" value="">
+        <input type="hidden" name="browserscreenheight" id="browserScreenHeight" value="">
+        <input type="hidden" name="browserscreenwidth" id="browserScreenWidth" value="">
+        <input type="hidden" name="browsertz" id="browserTZ" value="">
+        <input type="hidden" name="browserUserAgent" id="browserUserAgent" value="">
+        <!-- end 3DSv2 -->
+
+        {% if capture_method != text_capture_method_transparent %}
+            </form>
+        {% endif %}
+
+    </fieldset>
+</div>
+<div class="buttons">
+    <div class="pull-right">
+        <input type="button" value="{{ button_confirm }}" id="button-confirm" data-loading-text="{{ text_wait }}" class="btn btn-primary" />
+    </div>
+</div>
+
+<script type="text/javascript">
+    //<!--
+    var captureMethod = '{{ capture_method }}';
+    var $paymentType = $("input[name='payment_type']");
+    var $cardDetailsInput = $(".cardDetailsInput");
+    var $cvvRow = $("#cvv_row");
+    var $mandatoryRow = $("#mandatory_row");
+
+    var $cardName = $("#CardName");
+    var $cardNumber = $("#CardNumber");
+    var $expiryDateMonth = $("#ExpiryDateMonth");
+    var $expiryDateYear = $("#ExpiryDateYear");
+    var $cv2 = $("#CV2");
+
+    $cardDetailsInput.hide();
+
+    get3DSv2Params();
+
+    function get3DSv2Params() {
+        const setValue = (id, value) => {
+            const el = document.getElementById(id);
+            if (el) el.value = value;
+        };
+
+        setValue("browserJavaEnabled", navigator.javaEnabled());
+        setValue("browserLanguage", navigator.language || navigator.userLanguage);
+        setValue("browserColorDepth", screen.colorDepth);
+        setValue("browserScreenHeight", screen.height);
+        setValue("browserScreenWidth", screen.width);
+        setValue("browserTZ", new Date().getTimezoneOffset());
+        setValue("browserUserAgent", navigator.userAgent);
+    }
+
+    $paymentType.click(function() {
+        if ($(this).val() === "new_card") {
+            $cardDetailsInput.show();
+            if (captureMethod === "{{ text_capture_method_hpf }}") {
+                $cvvRow.hide();
+                $mandatoryRow.hide();
+            }
+        } else {
+            $cardDetailsInput.hide();
+            if (captureMethod === "{{ text_capture_method_hpf }}") {
+                $cvvRow.show();
+                $mandatoryRow.show();
+            }
+        }
+    });
+
+    $('#button-confirm').bind('click', function () {
+        var checkedPaymentType = $("input[name='payment_type']:checked").val();
+
+        if (captureMethod !== "{{ text_capture_method_hpf }}") {
+            var cc_owner = $cardName.val();
+            var cc_number = $cardNumber.val();
+            var cc_expire_date_month = $expiryDateMonth.val();
+            var cc_expire_date_year = $expiryDateYear.val();
+        }
+        var cc_cvv2 = $cv2.val();
+
+        var numericExpression = /^[0-9]+$/;
+
+        if (captureMethod !== "{{ text_capture_method_hpf }}" && checkedPaymentType === "new_card") {
+            if (cc_owner == null || cc_owner == "") {
+                alert("Enter the Card Holder Name as shown on the card.");
+                return false;
+            }
+
+            if (cc_number == null || cc_number == "" || !cc_number.match(numericExpression)) {
+                alert("Enter the Card Number omitting any spaces.");
+                return false;
+            }
+
+            if (cc_expire_date_month == null || cc_expire_date_month == "") {
+                alert("Enter the Expiry Month as shown on your card.");
+                return false;
+            }
+
+            if (cc_expire_date_year == null || cc_expire_date_year == "") {
+                alert("Enter the Expiry Year as shown on your card.");
+                return false;
+            }
+        }
+        if (captureMethod !== "{{ text_capture_method_hpf }}" && (cc_cvv2 == null || cc_cvv2 == "")) {
+            alert("Enter the CVV2 (Security Code) as shown on your card.");
+            return false;
+        }
+
+        if (captureMethod === "{{ text_capture_method_transparent }}" && checkedPaymentType === "new_card") {
+            $('#transparentRedirectForm').submit();
+        } else {
+            $.ajax({
+                type: 'POST',
+                url: '{{ ajax_url }}',
+                data: $('#payment input[type="text"], #payment input[type="radio"]:checked, #payment select, #payment [type="hidden"]'),
+                dataType: 'json',
+                beforeSend: function () {
+                    $('#button-confirm').attr('disabled', true);
+                    $('#payment').before('<div class="attention"><img src="extension/payvector/catalog/view/template/image/payvector-ajax-spinner.gif" alt="" /> {{ text_wait }}</div>');
+                },
+                success: function (json) {
+                    if (json['redirect']) {
+                        $('#3dauth').remove();
+
+                        var html = '<form action="' + json['redirect'] + '" method="post" id="3dauth">';
+                        html += '<input type="hidden" name="ACSURL" value="' + json['ACSURL'] + '" />';
+                        html += '<input type="hidden" name="MD" value="' + json['MD'] + '" />';
+                        html += '<input type="hidden" name="PaREQ" value="' + json['PaREQ'] + '" />';
+                        html += '<input type="hidden" name="TermUrl" value="' + json['TermUrl'] + '" />';
+                        html += '</form>';
+
+                        $('#payment').after(html);
+                        $('#3dauth').submit();
+                    }
+                    if (json['redirectHPF']) {
+                        $('#hpf').remove();
+                        for (var prop in json) {
+                            if (json[prop] == null) {
+                                json[prop] = "";
+                            }
+                        }
+
+                        var html = '<form action="' + json['redirectHPF'] + '" method="post" id="hpf">';
+                        html += '<input type="hidden" name="HashDigest" value="' + json['HashDigest'] + '" />';
+                        html += '<input type="hidden" name="MerchantID" value="' + json['MerchantID'] + '" />';
+                        html += '<input type="hidden" name="Amount" value="' + json['Amount'] + '" />';
+                        html += '<input type="hidden" name="CurrencyCode" value="' + json['CurrencyCode'] + '" />';
+                        html += '<input type="hidden" name="OrderID" value="' + json['OrderID'] + '" />';
+                        html += '<input type="hidden" name="TransactionType" value="' + json['TransactionType'] + '" />';
+                        html += '<input type="hidden" name="TransactionDateTime" value="' + json['TransactionDateTime'] + '" />';
+                        html += '<input type="hidden" name="CallbackURL" value="' + json['CallbackURL'] + '" />';
+                        html += '<input type="hidden" name="OrderDescription" value="' + json['OrderDescription'] + '" />';
+                        html += '<input type="hidden" name="CustomerName" value="' + json['CustomerName'] + '" />';
+                        html += '<input type="hidden" name="Address1" value="' + json['Address1'] + '" />';
+                        html += '<input type="hidden" name="Address2" value="' + json['Address2'] + '" />';
+                        html += '<input type="hidden" name="Address3" value="' + json['Address3'] + '" />';
+                        html += '<input type="hidden" name="Address4" value="' + json['Address4'] + '" />';
+                        html += '<input type="hidden" name="City" value="' + json['City'] + '" />';
+                        html += '<input type="hidden" name="State" value="' + json['State'] + '" />';
+                        html += '<input type="hidden" name="Postcode" value="' + json['Postcode'] + '" />';
+                        html += '<input type="hidden" name="CountryCode" value="' + json['CountryCode'] + '" />';
+                        html += '<input type="hidden" name="ResultDeliveryMethod" value="' + json['ResultDeliveryMethod'] + '" />';
+                        html += '<input type="hidden" name="ServerResultURL" value="' + json['ServerResultURL'] + '" />';
+                        html += '<input type="hidden" name="PaymentFormDisplaysResult" value="' + json['PaymentFormDisplaysResult'] + '" />';
+                        html += '<input type="hidden" name="EmailAddress" value="' + json['EmailAddress'] + '" />';
+                        html += '<input type="hidden" name="PhoneNumber" value="' + json['PhoneNumber'] + '" />';
+                        html += '</form>';
+
+                        $('#payment').after(html);
+                        $('#hpf').submit();
+                    }
+
+                    if (json['error']) {
+                        alert(json['error']);
+                        $('#button-confirm').attr('disabled', false);
+                    }
+
+                    $('.attention').remove();
+
+                    if (json['success']) {
+                        location = json['success'];
+                    }
+                }
+            });
+            return true;
+        }
+    });
+    //-->
+</script>

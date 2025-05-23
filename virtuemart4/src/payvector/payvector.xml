@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<extension version="2.5" type="plugin" group="vmpayment" method="upgrade">
+	<name>PayVector</name>
+	<creationDate>March 24 2025</creationDate>
+	<author>Senthil</author>
+	<authorUrl>http://www.payvector.co.uk</authorUrl>
+	<copyright></copyright>
+	<license>GPL</license>
+	<version>4.1.5</version>
+	<description>
+		<![CDATA[
+		<span style="font:13px arial,sans-serif;">
+
+			<b>PayVector Direct Payment Plugin</b>
+			<br/>GPLv3 License
+
+			<br/><br/>
+			First-time installation:
+			<a href="index.php?option=com_plugins&view=plugins&filter_folder=vmpayment">
+				Click here to enable plugin
+			</a>
+
+			<br/><br/>
+			Plugin already enabled?
+			<a href="index.php?option=com_virtuemart&view=paymentmethod">
+				Click here to configure plugin
+			</a>
+
+			<br/><br/>
+			<a target="_blank" href="http://docs.joomla.org/Why_can't_you_install_any_extensions%3F">
+				How to solve Installation errors (docs.joomla.org)
+			</a>
+
+			<br/>
+			&nbsp;
+
+		</span>
+	]]>
+	</description>
+
+	<install>
+		<sql>
+			<file driver="mysql" charset="utf8">Install.sql</file>
+		</sql>
+	</install>
+	<uninstall>
+		<sql>
+			<file driver="mysql" charset="utf8">Uninstall.sql</file>
+		</sql>
+	</uninstall>
+
+	<files>
+		<filename plugin="payvector">Install.sql</filename>
+		<filename plugin="payvector">Uninstall.sql</filename>
+		<filename plugin="payvector">index.html</filename>
+		<filename plugin="payvector">payvector.php</filename>
+
+		<folder>Templates</folder>
+		<folder>PayVector-Library</folder>
+		<folder>assets</folder>
+		<folder>elements</folder>
+		<folder>pages</folder>
+		<folder>images</folder>
+		<folder>language</folder>
+	</files>
+	<languages>
+        <language tag="en-GB">language/en-GB.plg_vmpayment_payvector.ini</language>
+    </languages>	
+
+	<vmconfig>
+		<fields name="params">
+			<fieldset name="basic" addfieldpath="/plugins/vmpayment/payvector/payvector/fields">						
+
+				<field class="level1" type="vmtitle" default="VMPAYMENT_PAYVECTOR_BASIC_OPTIONS"/>
+
+				<field name="testmode" type="radio" default="0" label="Test Mode" description="Test Mode" >
+					<option value="0">COM_VIRTUEMART_NO</option>
+					<option value="1">COM_VIRTUEMART_YES</option>
+				</field>
+
+				<field name="test_mid" type="text" label="VMPAYMENT_PAYVECTOR_TEST_MERCHANT_ID" description="VMPAYMENT_PAYVECTOR_TEST_MERCHANT_ID_DESC" />
+				<field name="test_pass" type="password" label="VMPAYMENT_PAYVECTOR_TEST_MERCHANT_PASSWORD" description="VMPAYMENT_PAYVECTOR_TEST_MERCHANT_PASSWORD_DESC" />
+
+				<field name="live_mid" type="text" label="VMPAYMENT_PAYVECTOR_MERCHANT_ID" description="VMPAYMENT_PAYVECTOR_MERCHANT_ID_DESC" />
+				<field name="live_pass" type="password" label="VMPAYMENT_PAYVECTOR_MERCHANT_PASSWORD" description="VMPAYMENT_PAYVECTOR_MERCHANT_PASSWORD_DESC" />
+
+				<field name="payment_currency" type="vmacceptedcurrency" default="0" label="VMPAYMENT_PAYVECTOR_CURRENCY" description="VMPAYMENT_PAYVECTOR_CURRENCY_DESC" />
+
+				<field name="capture_method" type="list" default="Direct" label="VMPAYMENT_PAYVECTOR_CAPTURE_METHOD" description="VMPAYMENT_PAYVECTOR_CAPTURE_METHOD_DESCRIPTION">
+					<option value="Direct API" description="VMPAYMENT_PAYVECTOR_CAPTURE_DIRECT_DESCRIPTION">VMPAYMENT_PAYVECTOR_CAPTURE_DIRECT</option>
+					<option value="Hosted Payment Form" description="VMPAYMENT_PAYVECTOR_CAPTURE_HPF">VMPAYMENT_PAYVECTOR_CAPTURE_HPF</option>
+				</field>
+
+				<field name="hash_method" type="list" default="SHA1" label="VMPAYMENT_PAYVECTOR_HASH_METHOD" description="VMPAYMENT_PAYVECTOR_HASH_METHOD_DESCRIPTION">
+					<option value="HMACSHA1" description="VMPAYMENT_PAYVECTOR_HMACSHA1_DESCRIPTION">HMACSHA1</option>
+					<option value="SHA1" description="VMPAYMENT_PAYVECTOR_SHA1_DESCRIPTION">SHA1</option>
+					<option value="HMACMD5" description="VMPAYMENT_PAYVECTOR_HMACMD5_DESCRIPTION">HMACMD5</option>
+					<option value="MD5" description="VMPAYMENT_PAYVECTOR_MD5_DESCRIPTION">MD5</option>
+				</field>
+
+				<field name="pre_shared_key" type="text" label="VMPAYMENT_PAYVECTOR_PRESHAREDKEY" description="VMPAYMENT_PAYVECTOR_PRESHAREDKEY_DESCRIPTION" />
+
+				<field name="result_delivery_method" type="list" label="VMPAYMENT_PAYVECTOR_DELIVERY_METHOD" description="VMPAYMENT_PAYVECTOR_DELIVERY_METHOD_DESCRIPTION">
+					<option value="POST" description="VMPAYMENT_PAYVECTOR_POST_DESCRIPTION">POST</option>
+					<!--  ## Server method not supported in this version ##  <option value="SERVER" description="VMPAYMENT_PAYVECTOR_SERVER_DESCRIPTION">SERVER</option> -->
+					<option value="SERVER_PULL" description="VMPAYMENT_PAYVECTOR_SERVER_PULL_DESCRIPTION">SERVER_PULL</option>
+				</field>
+
+				<field class="level1" type="vmtitle" default="VMPAYMENT_PAYVECTOR_OPTIONAL_SETTINGS"/>
+
+				<field name="payment_approved_status" type="vmorderstate" scope="com_virtuemart" default="C" label="VMPAYMENT_PAYVECTOR_ORDERSTATUS_APPROVED" description="VMPAYMENT_PAYVECTOR_ORDERSTATUS_APPROVED" />
+
+				<field name="payment_declined_status" type="vmorderstate" scope="com_virtuemart" default="X" label="VMPAYMENT_PAYVECTOR_ORDERSTATUS_DECLINED" description="VMPAYMENT_PAYVECTOR_ORDERSTATUS_DECLINED" />
+
+
+				<field name="payment_logos" type="vmfiles" label="VMPAYMENT_PAYVECTOR_LOGOS" description="VMPAYMENT_PAYVECTOR_LOGOS_DESC" directory="/plugins/vmpayment/payvector/images"
+						 default="default" hide_default="1" hide_none="1" stripext="0"   exclude="^_" />
+				<field name="countries" type="vmcountries"  scope="com_virtuemart" default="" label="VMPAYMENT_PAYVECTOR_COUNTRIES" description="VMPAYMENT_PAYVECTOR_COUNTRIES_DESC"/>
+
+				<field name="min_amount" type="text"  label="VMPAYMENT_PAYVECTOR_MIN_AMOUNT" description="VMPAYMENT_PAYVECTOR_MIN_AMOUNT_EXPLAIN" default="0" />
+				<field name="max_amount" type="text"  label="VMPAYMENT_PAYVECTOR_MAX_AMOUNT" description="VMPAYMENT_PAYVECTOR_MAX_AMOUNT_EXPLAIN" default="0" />
+				<field name="cost_per_transaction" type="text"  label="VMPAYMENT_PAYVECTOR_COST_PER_TRANSACTION" description="VMPAYMENT_PAYVECTOR_COST_PER_TRANSACTION_EXPLAIN" default="0" />
+				<field name="cost_percent_total" type="text"  label="VMPAYMENT_PAYVECTOR_COST_PERCENT_TOTAL" description="VMPAYMENT_PAYVECTOR_COST_PERCENT_TOTAL_EXPLAIN" default="0" />
+				<field name="tax_id" type="vmtaxes" scope="com_virtuemart"  label="VMPAYMENT_PAYVECTOR_TAX" description="VMPAYMENT_PAYVECTOR_TAX_DESC" default="0" />
+
+				<field name="payment_info" type="hidden" cols="60" rows="30" default="VMPAYMENT_PAYVECTOR_PAYMENT_INFO_TEXT" label="VMPAYMENT_PAYVECTOR_PAYMENTINFO" description="VMPAYMENT_PAYVECTOR_PAYMENTINFO_EXPLAIN" />
+
+			</fieldset>
+		</fields>
+	</vmconfig>
+</extension>

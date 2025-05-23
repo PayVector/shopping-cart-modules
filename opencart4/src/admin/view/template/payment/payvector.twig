@@ -1,0 +1,262 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <button type="submit" form="form-payment" data-bs-toggle="tooltip" title="{{ button_save }}"
+          class="btn btn-primary"><i class="fa-solid fa-save"></i></button>
+        <a href="{{ back }}" data-bs-toggle="tooltip" title="{{ button_back }}" class="btn btn-light"><i
+            class="fa-solid fa-reply"></i></a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ol class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+  <div class="container-fluid">
+
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-pencil"></i> {{ text_edit }}</div>
+      <div class="card-body">
+
+        <form id="form-payment" action="{{ save }}" method="post" data-oc-toggle="ajax">
+
+                <div class="row mb-3">
+                  <label class="col-sm-4 col-form-label">{{ entry_status }}</label>
+                  <div class="col-sm-8">
+                    <div class="form-check form-switch form-switch-lg">
+                      <input type="hidden" name="payment_payvector_status" value="0" />
+                      <input type="checkbox" name="payment_payvector_status" value="1" id="input-status"
+                        class="form-check-input" {% if payment_payvector_status %} checked{% endif %} />
+                    </div>
+                    <div class="form-text">{{ help_status }}</div>
+                  </div>
+                </div>
+
+
+                <div class="row mb-3 required">
+                  <label for="input-title" class="col-sm-4 col-form-label">{{ entry_title }}</label>
+                  <div class="col-sm-8">
+                    <div class="input-group">
+                      <input id="input-title" name="payment_payvector_title" type="text" class="form-control" value="{{ payment_payvector_title }}" />
+                    </div>
+                    <div class="form-text">{{ help_title }}</div>
+                    <div id="error-title" class="invalid-feedback"></div>
+
+                  </div>
+                </div>
+
+
+                <div class="row mb-3">
+                  <label for="payment_payvector_capture_method" class="col-sm-4 col-form-label"><span data-toggle="tooltip" title="{{ help_capture_method }}">{{ entry_capture_method }}</span></label>
+                  <div class="col-sm-8">
+
+                    <select name="payment_payvector_capture_method" class="form-select">
+                      <option value="{{ text_capture_method_direct }}" {% if payment_payvector_capture_method == text_capture_method_direct %}selected="selected"{% endif %}>{{ text_capture_method_direct }}</option>
+                      <option value="{{ text_capture_method_hpf }}" {% if payment_payvector_capture_method == text_capture_method_hpf %}selected="selected"{% endif %}>{{ text_capture_method_hpf }}</option>
+                      <!--option value="{{ text_capture_method_transparent }}" {% if payment_payvector_capture_method == text_capture_method_transparent %}selected="selected"{% endif %}>{{ text_capture_method_transparent }}</option-->
+                    </select>
+                    <div class="form-text">{{ help_capture_method }}</div>
+
+                  </div>
+                </div>
+
+
+                <div class="row mb-3 required">
+                  <label for="input-mid" class="col-sm-4 col-form-label">{{ entry_mid }}</label>
+                  <div class="col-sm-8">
+                    <div class="input-group">
+                      <input id="input-mid" class="form-control" type="text" name="payment_payvector_mid" value="{{ payment_payvector_mid }}" />
+                    </div>
+                    <div class="form-text">{{ help_mid }}</div>
+                    <div id="error-mid" class="invalid-feedback"></div>
+                  </div>
+                </div>
+
+                <div class="row mb-3 required">
+                  <label for="input-pass" class="col-sm-4 col-form-label">{{ entry_pass }}</label>
+                  <div class="col-sm-8">
+                    <div class="input-group">
+                      <input id="input-pass" class="form-control" type="password" name="payment_payvector_pass" value="{{ payment_payvector_pass }}" />
+                    </div>
+                    <div class="form-text">{{ help_pass }}</div>
+                    <div id="error-pass" class="invalid-feedback"></div>
+                  </div>
+                </div>
+
+                <div class="hpf-transparent-container">
+
+                    <div class="row mb-3 required hpf-transparent-settings">
+                      <label for="input-pre_shared_key" class="col-sm-4 col-form-label">{{ entry_pre_shared_key }}</label>
+                      <div class="col-sm-8">
+                        <div class="input-group">
+                          <input id="input-pre_shared_key" class="form-control" type="password" name="payment_payvector_pre_shared_key" value="{{ payment_payvector_pre_shared_key }}" />
+                        </div>
+                        <div class="form-text">{{ help_pre_shared_key }}</div>
+                        <div id="error-pre_shared_key" class="invalid-feedback"></div>
+                      </div>
+                    </div>
+
+                    <div class="row mb-3 required hpf-transparent-settings">
+                      <label for="input-hash_method" class="col-sm-4 col-form-label">{{ entry_hash_method }}</label>
+                      <div class="col-sm-8">
+
+                        <select class="form-select" id="input-hash_method" name="payment_payvector_hash_method">
+                            <option value="MD5" {% if payment_payvector_hash_method == "MD5" %}selected="selected"{% endif %}>MD5</option>
+                            <option value="HMACMD5" {% if payment_payvector_hash_method == "HMACMD5" %}selected="selected"{% endif %}>HMACMD5</option>
+                            <option value="SHA1" {% if payment_payvector_hash_method == "SHA1" %}selected="selected"{% endif %}>SHA1</option>
+                            <option value="HMACSHA1" {% if payment_payvector_hash_method == "HMACSHA1" %}selected="selected"{% endif %}>HMACSHA1</option>
+                        </select>
+                        <div class="form-text">{{ help_hash_method }}</div>
+                      </div>
+                    </div>
+
+                    <div class="row mb-3 required hpf-settings">
+                      <label for="input-result_delivery_method" class="col-sm-4 col-form-label">{{ entry_result_delivery_method }}</label>
+                      <div class="col-sm-8">
+
+                        <select class="form-select" id="input-result_delivery_method" name="payment_payvector_result_delivery_method">
+                            <option value="POST" {% if payment_payvector_result_delivery_method == "POST" %}selected="selected"{% endif %}>{{ text_result_delivery_method_post }}</option>
+                            <option value="SERVER_PULL" {% if payment_payvector_result_delivery_method == "SERVER_PULL" %}selected="selected"{% endif %}>{{ text_result_delivery_method_server_pull }}</option>
+                        </select>
+                        <div class="form-text">{{ help_result_delivery_method }}</div>
+                      </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                  <label for="input-transaction_type" class="col-sm-4 col-form-label">{{ entry_transaction_type }}</label>
+                  <div class="col-sm-8">
+
+                    <select class="form-select" id="input-transaction_type" name="payment_payvector_transaction_type">
+                        <option value="SALE" {% if payment_payvector_transaction_type == "SALE" %}selected="selected"{% endif %}>{{ text_transaction_type_sale }}</option>
+                        <option value="PREAUTH" {% if payment_payvector_transaction_type == "PREAUTH" %}selected="selected"{% endif %}>{{ text_transaction_type_preauth }}</option>
+                    </select>
+                    <div class="form-text">{{ help_transaction_type }}</div>
+                  </div>
+                </div>
+
+
+                <div class="row mb-3">
+                  <label class="col-sm-4 col-form-label">{{ entry_enable_cross_reference }}</label>
+                  <div class="col-sm-8">
+                    <div class="form-check form-switch form-switch-lg">
+                      <input type="hidden" name="payment_payvector_enable_cross_reference" value="0" />
+                      <input type="checkbox" name="payment_payvector_enable_cross_reference" value="1" id="input-enable_cross_reference"
+                        class="form-check-input" {% if payment_payvector_enable_cross_reference %} checked{% endif %} />
+                    </div>
+                    <div class="form-text">{{ help_enable_cross_reference }}</div>
+
+                  </div>
+                </div>
+
+
+                <div class="row mb-3">
+                  <label class="col-sm-4 col-form-label">{{ entry_enable_3ds_cross_reference }}</label>
+                  <div class="col-sm-8">
+                    <div class="form-check form-switch form-switch-lg">
+                      <input type="hidden" name="payment_payvector_enable_3ds_cross_reference" value="0" />
+                      <input type="checkbox" name="payment_payvector_enable_3ds_cross_reference" value="1" id="input-enable_3ds_cross_reference"
+                        class="form-check-input" {% if payment_payvector_enable_3ds_cross_reference %} checked{% endif %} />
+                    </div>
+                    <div class="form-text">{{ help_enable_3ds_cross_reference }}</div>
+                  </div>
+                </div>
+
+
+                <div class="row mb-3">
+                  <label for="input-order_status_id" class="col-sm-4 col-form-label">{{ entry_order_status }}</label>
+                  <div class="col-sm-8">
+
+                    <select class="form-select" id="input-order_status_id" name="payment_payvector_order_status_id">
+                       {% for order_status in order_statuses %}
+                          <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_payvector_order_status_id %}selected="selected"{% endif %}>
+                            {{ order_status.name }}
+                          </option>
+                      {% endfor %}
+                    </select>
+                    <div class="form-text">{{ help_order_status }}</div>
+                  </div>
+                </div>
+
+
+                <div class="row mb-3">
+                  <label for="input-failed_order_status_id" class="col-sm-4 col-form-label">{{ entry_failed_order_status }}</label>
+                  <div class="col-sm-8">
+
+                    <select class="form-select" id="input-failed_order_status_id" name="payment_payvector_failed_order_status_id">
+                       {% for order_status in order_statuses %}
+                          <option value="{{ order_status.order_status_id }}" {% if order_status.order_status_id == payment_payvector_failed_order_status_id %}selected="selected"{% endif %}>
+                            {{ order_status.name }}
+                          </option>
+                      {% endfor %}
+                    </select>
+                    <div class="form-text">{{ help_failed_order_status }}</div>
+                  </div>
+                </div>
+
+
+                <div class="row mb-3">
+                  <label for="input-geo_zone_id" class="col-sm-4 col-form-label">{{ entry_geo_zone }}</label>
+                  <div class="col-sm-8">
+
+                    <select class="form-select" id="input-geo_zone_id" name="payment_payvector_geo_zone_id">
+                        <option value="0">{{ text_all_zones }}</option>
+                          {% for geo_zone in geo_zones %}
+                              <option value="{{ geo_zone.geo_zone_id }}" {% if geo_zone.geo_zone_id == payment_payvector_geo_zone_id %}selected="selected"{% endif %}>
+                                  {{ geo_zone.name }}
+                              </option>
+                          {% endfor %}
+                    </select>
+                    <div class="form-text">{{ help_geo_zone }}</div>
+                  </div>
+                </div>
+
+
+                {# Last Field End #}
+
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var hpfSettings = $(".hpf-settings");
+        var hpfTransparentSettings = $(".hpf-transparent-settings");
+        var hpfTransparentContainer = $(".hpf-transparent-container");
+        var captureMethod = $("select[name='payment_payvector_capture_method']").val();
+
+        if (captureMethod === "{{ text_capture_method_direct }}") {
+            hpfTransparentContainer.hide();
+            // hpfSettings.hide();
+            // hpfTransparentSettings.hide();
+        } else if (captureMethod === "{{ text_capture_method_transparent }}") {
+            hpfSettings.hide();
+        }
+
+        $("#content").on("click change keyup", "select[name='payment_payvector_capture_method']", function(){
+            if ($(this).val() === "{{ text_capture_method_direct }}") {
+                hpfTransparentContainer.slideUp();
+                hpfSettings.hide();
+                // hpfTransparentSettings.hide();
+            } else if ($(this).val() === "{{ text_capture_method_hpf }}") {
+                hpfSettings.slideDown();
+                // hpfTransparentSettings.show();
+                hpfTransparentContainer.slideDown();
+            } else {
+                hpfSettings.hide();
+                // hpfTransparentSettings.show();
+                hpfTransparentContainer.slideDown();
+            }
+        });
+    });
+</script>
+
+{{ footer }}

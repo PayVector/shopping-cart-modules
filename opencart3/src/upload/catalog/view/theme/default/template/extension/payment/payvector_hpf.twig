@@ -1,0 +1,92 @@
+{{ header }}
+<div class="container">
+    <div id="content">
+        <form action="{{ HostedPaymentFormURL }}" method="post" id="HPFForm">
+            <div class="ContentRight">
+                <input type="hidden" name="HashDigest" value="{{ HashDigest }}" />
+                <input type="hidden" name="MerchantID" value="{{ MerchantID }}" />
+                <input type="hidden" name="Amount" value="{{ Amount }}" />
+                <input type="hidden" name="CurrencyCode" value="{{ CurrencyCode }}" />
+                <input type="hidden" name="EchoAVSCheckResult" value="true" />
+                <input type="hidden" name="EchoCV2CheckResult" value="true" />
+                <input type="hidden" name="EchoThreeDSecureAuthenticationCheckResult" value="true" />
+                <input type="hidden" name="EchoCardType" value="true" />
+                <input type="hidden" name="EchoCardNumberFirstSix" value="true" />
+                <input type="hidden" name="EchoCardNumberLastFour" value="true" />
+                {% if AVSOverridePolicy is not empty %}
+                    <input type="hidden" name="AVSOverridePolicy" value="{{ AVSOverridePolicy }}" />
+                {% endif %}
+                {% if CV2OverridePolicy is not empty %}
+                    <input type="hidden" name="CV2OverridePolicy" value="{{ CV2OverridePolicy }}" />
+                {% endif %}
+                {% if threeDSecureOverridePolicy is not empty %}
+                    <input type="hidden" name="ThreeDSecureOverridePolicy" value="{{ ThreeDSecureOverridePolicy }}" />
+                {% endif %}
+                <input type="hidden" name="OrderID" value="{{ OrderID }}" />
+                <input type="hidden" name="TransactionType" value="{{ TransactionType }}" />
+                <input type="hidden" name="TransactionDateTime" value="{{ TransactionDateTime }}" />
+                <input type="hidden" name="CallbackURL" value="{{ CallbackURL|e('html_attr') }}" />
+                <input type="hidden" name="OrderDescription" value="{{ OrderDescription|e('html_attr') }}" />
+                <input type="hidden" name="CustomerName" value="{{ CustomerName|e('html_attr') }}" />
+                <input type="hidden" name="Address1" value="{{ Address1|e('html_attr') }}" />
+                <input type="hidden" name="Address2" value="{{ Address2|e('html_attr') }}" />
+                <input type="hidden" name="Address3" value="{{ Address3|e('html_attr') }}" />
+                <input type="hidden" name="Address4" value="{{ Address4|e('html_attr') }}" />
+                <input type="hidden" name="City" value="{{ City|e('html_attr') }}" />
+                <input type="hidden" name="State" value="{{ State|e('html_attr') }}" />
+                <input type="hidden" name="PostCode" value="{{ Postcode|e('html_attr') }}" />
+                <input type="hidden" name="CountryCode" value="{{ CountryCode }}" />
+                <input type="hidden" name="EmailAddress" value="{{ EmailAddress|e('html_attr') }}" />
+                <input type="hidden" name="PhoneNumber" value="{{ PhoneNumber|e('html_attr') }}" />
+                {% if EmailAddressEditable is not empty %}
+                    <input type="hidden" name="EmailAddressEditable" value="{{ EmailAddressEditable }}" />
+                {% endif %}
+                {% if PhoneNumberEditable is not empty %}
+                    <input type="hidden" name="PhoneNumberEditable" value="{{ PhoneNumberEditable }}" />
+                {% endif %}
+                <input type="hidden" name="CV2Mandatory" value="true" />
+                <input type="hidden" name="Address1Mandatory" value="false" />
+                <input type="hidden" name="CityMandatory" value="false" />
+                <input type="hidden" name="PostCodeMandatory" value="false" />
+                <input type="hidden" name="StateMandatory" value="false" />
+                <input type="hidden" name="CountryMandatory" value="false" />
+                <input type="hidden" name="ResultDeliveryMethod" value="{{ ResultDeliveryMethod }}" />
+                <input type="hidden" name="ServerResultURL" value="{{ ServerResultURL|e('html_attr') }}" />
+                <input type="hidden" name="PaymentFormDisplaysResult" value="{{ PaymentFormDisplaysResult }}" />
+                <input type="hidden" name="ServerResultURLCookieVariables" value="" />
+                <input type="hidden" name="ServerResultURLFormVariables" value="" />
+                <input type="hidden" name="ServerResultURLQueryStringVariables" value="" />
+
+                <div id="HPFRedirect" style="width: 400px; margin: 0 auto;">
+                    <h3 style="text-align: center;">Please wait while you are redirected</h3>
+                    <center>
+                        <img src="catalog/view/theme/default/image/payvector-ajax-spinner.gif" />
+                    </center>
+                </div>
+                <noscript>
+                    <p>If you are not automatically redirected, click here:</p>
+                    <input type="submit" value="Continue to Payment" />
+                </noscript>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+    var jQuery_1_11_1 = jQuery.noConflict(true);
+
+    jQuery_1_11_1(document).ready(function() {
+        jQuery_1_11_1("#HPFRedirect").show();
+        var yourOrder = jQuery_1_11_1("h3:contains(Your Order)");
+
+        yourOrder.parent().contents().filter(function() {
+            return this.nodeType == Node.TEXT_NODE;
+        }).replaceWith("");
+
+        yourOrder.hide();
+        setTimeout(function(){
+            jQuery_1_11_1("#HPFForm").submit();
+        }, 500);
+    });
+</script>
+{{ footer }}

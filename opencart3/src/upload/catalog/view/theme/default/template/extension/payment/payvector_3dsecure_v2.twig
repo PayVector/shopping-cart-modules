@@ -1,0 +1,21 @@
+<div class="container">
+    <div id="content">
+
+			<form method="POST" id="form_auth3d" name="form_auth3d" action="{{ FormAction }}" {{ FormAttributes }}>
+				{% for key, value in prams %}
+					<input type="hidden" name="{{ key }}" value="{{ value }}">
+				{% endfor %}
+
+				<noscript>
+		                You have javascript disabled, please click to be redirected:
+		                <input type="submit" value="Submit">
+		            </noscript>
+			</form>
+
+		<script>
+			var frm = document.getElementById("form_auth3d");
+			frm.submit();
+		</script>
+
+    </div>
+</div>

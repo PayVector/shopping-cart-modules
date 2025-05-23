@@ -1,0 +1,35 @@
+{{ header }}
+<div class="container">
+    <div id="content">
+        <p>
+            You are enrolled for 3D Secure Verification. Your card will not be charged until you verify the transaction. For your security, please fill out the form below
+            to complete your order. Do not click the refresh or back button or this transaction may be interrupted or cancelled.
+        </p>
+        <iframe style="width:100%;height:450px;border:1px solid #eee;" scrolling="auto" name="threeDSecureFrame" src="about:blank"></iframe>
+
+        <form method="POST" id="form_auth3d" name="form_auth3d" target="threeDSecureFrame" action="{{ ACSURL }}">
+            <input type="hidden" name="MD" value="{{ MD }}" />
+            <input type="hidden" name="PaReq" value="{{ PaReq }}" />
+            <input type="hidden" name="TermUrl" value="{{ termURL }}" />
+
+            {% if ThreeDSMethodData %}
+                <input type="hidden" name="ThreeDSMethodData" value="{{ ThreeDSMethodData }}" />
+             {% endif %}
+
+
+             {#
+
+            #}
+            <noscript>
+                You have javascript disabled, please click to be redirected:
+                <input type="submit" value="Submit">
+            </noscript>
+        </form>
+
+        <script>
+            var frm = document.getElementById("form_auth3d");
+            frm.submit();
+        </script>
+    </div>
+</div>
+{{ footer }}
