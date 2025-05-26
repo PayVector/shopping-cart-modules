@@ -440,12 +440,12 @@ class TransactionResult
 class ListItemList
 {
 	private $m_lilListItemList;
-				
+
 	public function getCount()
 	{
 		return count($this->m_lilListItemList);
 	}
-	
+
 	public function getAt($nIndex)
 	{
 		if ($nIndex < 0 ||
@@ -453,10 +453,10 @@ class ListItemList
 		{
 			throw new Exception('Array index out of bounds');
 		}
-			
+
 		return $this->m_lilListItemList[$nIndex];
 	}
-	
+
 	public function add($szName, $szValue, $boIsSelected)
 	{
 		$liListItem = new ListItem($szName, $szValue, $boIsSelected);
@@ -471,7 +471,7 @@ class ListItemList
 		for ($nCount = 0; $nCount < count($this->m_lilListItemList); $nCount++)
 		{
 			$liListItem = $this->m_lilListItemList[$nCount];
-			
+
 			$szReturnString = $szReturnString."<option";
 
 			if ($liListItem->getValue() != null &&
@@ -482,7 +482,7 @@ class ListItemList
 
 			if ($liListItem->getIsSelected() == true)
 			{
-				$szReturnString = $szReturnString." selected=\"selected\"";	
+				$szReturnString = $szReturnString." selected=\"selected\"";
 			}
 
 			$szReturnString = $szReturnString.">".$liListItem->getName()."</option>\n";
@@ -502,23 +502,23 @@ class ListItem
 	private $m_szName;
    	private $m_szValue;
     private $m_boIsSelected;
-    
+
     //public properties
     public function getName()
     {
     	return $this->m_szName;
     }
-    
+
     public function getValue()
     {
     	return $this->m_szValue;
     }
-   
+
     public function getIsSelected()
     {
     	return $this->m_boIsSelected;
     }
-   	    
+
     //constructor
     public function __construct($szName, $szValue, $boIsSelected)
     {
@@ -550,7 +550,7 @@ class PaymentFormHelper
 
 		return ($boReturnValue);
 	}
-	public static function base64UrlEncode($szString) 
+	public static function base64UrlEncode($szString)
 	{
 		// Encode the string in base64
 		$szBase64 = base64_encode($szString);
@@ -560,14 +560,14 @@ class PaymentFormHelper
 
 		return $szUrlSafe;
 	}
-	public static function base64UrlDecode($szString) 
+	public static function base64UrlDecode($szString)
 	{
 		// Replace URL-safe characters with standard Base64 characters
 		$szBase64 = strtr($szString, '-_', '+/');
 
 		// Add necessary padding to make the length a multiple of 4
 		$nPadding = strlen($szBase64) % 4;
-		if ($nPadding) 
+		if ($nPadding)
 		{
 			$szBase64 .= str_repeat('=', 4 - $nPadding);
 		}
@@ -592,7 +592,7 @@ class PaymentFormHelper
 		}
 
 		return ($szReturnString);
-	}	
+	}
 	public static function parseNameValueStringIntoArray($szNameValueString, $boURLDecodeValues)
 	{
 		// break the reponse into an array
@@ -634,7 +634,7 @@ class PaymentFormHelper
 		}
 		else
 		{
-			$szProtocolString = "http://";			
+			$szProtocolString = "http://";
 			if (array_key_exists('SERVER_PORT', $_SERVER) && $_SERVER["SERVER_PORT"] != 80)
 			{
 				$szPortString = ":".$_SERVER["SERVER_PORT"];
@@ -642,7 +642,7 @@ class PaymentFormHelper
 		}
 
 		$szReturnString = $szProtocolString.$_SERVER["SERVER_NAME"].$szPortString.$_SERVER["SCRIPT_NAME"];
-		
+
 		$boFinished = false;
 		$LoopIndex = strlen($szReturnString) - 1;
 
@@ -687,7 +687,7 @@ class PaymentFormHelper
 	{
 		$ThisYear = date("Y");
 		$ThisYearPlusTen = $ThisYear + 10;
-	
+
 		$lilExpiryDateYearList = new ListItemList();
 
 		for ($LoopIndex = $ThisYear; $LoopIndex <= $ThisYearPlusTen; $LoopIndex++)
@@ -718,7 +718,7 @@ class PaymentFormHelper
 			{
 				$lilISOCountryList->add("--------------------", "-1", false);
 				$FirstZeroPriorityGroup = false;
-			} 
+			}
 
 			if ($CountryShort != "" &&
 				$CountryShort != -1 &&
@@ -1182,7 +1182,7 @@ class PaymentFormHelper
 		}
 
 		return (!$boErrorOccurred);
-	}	
+	}
 	public static function getTransactionResultFromPaymentFormHandler(
 		$szPaymentFormResultHandlerURL,
 		$szMerchantID,
@@ -1318,7 +1318,7 @@ class PaymentFormHelper
 			if(strToUpper($szHashDigest) != strToUpper($szCalculatedHashDigest))
 			{
 				$boErrorOccurred = true;
-				
+
 				$szValidateErrorMessage = "Hash digests don't match - possible variable tampering";
 			}
 			else
@@ -1398,7 +1398,7 @@ class PaymentFormHelper
 			// now need to validate the hash digest
 			$szStringToHash = PaymentFormHelper::generateStringToHash3($szMerchantID, $szPassword, $szCrossReference, $szOrderID, $szPreSharedKey, $szHashMethod);
 			$szCalculatedHashDigest = PaymentFormHelper::calculateHashDigest($szStringToHash, $szPreSharedKey, $szHashMethod);
-			
+
 			// does the calculated hash match the one that was passed?
 			if(strToUpper($szHashDigest) != strToUpper($szCalculatedHashDigest))
 			{
@@ -1406,7 +1406,7 @@ class PaymentFormHelper
 				$szValidateErrorMessage = "Hash digests don't match - possible variable tampering";
 			}
 			else
-			{			
+			{
 				// use the cross reference and/or the order ID to pull the
 				// transaction results out of storage
 				if(!PaymentFormHelper::getTransactionResultFromPaymentFormHandler(

@@ -1,11 +1,11 @@
 <?php
 
-/* 
+/*
  * Product: PayVector Payment Gateway
  * Version: 1.0.0
  * Release Date: 2014.03.07
  * Note - should not be included directly, please include TransactionProcessor instead as that includes dependencies of this class
- * 
+ *
  * Copyright (C) 2014 PayVector <support@payvector.net>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -472,5 +472,5 @@ class ISOHelper
 		$iclISOCurrencyList->add(901, "New Taiwan Dollar", "TWD", 2);
 		$iclISOCurrencyList->add(784, "United Arab Emirates dirham", "AED", 2);
 		return $iclISOCurrencyList;
-	}	
-}	
+	}
+}

@@ -1,13 +1,14 @@
 <?php
 	namespace net\thepaymentgateway\paymentsystem;
+	use Opencart\System\Library\Extension\Payvector\Lib;
 
 	require_once("TPG_Common.php");
 	require_once("SOAP.php");
-    	
+
 	/*****************/
 	/* Input classes */
 	/*****************/
-	class RequestGatewayEntryPoint extends GatewayEntryPoint 
+	class RequestGatewayEntryPoint extends GatewayEntryPoint
 	{
 		private $m_nRetryAttempts;
 
@@ -15,14 +16,14 @@
 	  	{
 	  		return $this->m_nRetryAttempts;
 	  	}
-		
+
 		//constructor
 	  	public function __construct($szEntryPointURL, $nMetric, $nRetryAttempts)
 	   	{
 	   		//do NOT forget to call the parent constructor too
 	   		//parent::GatewayEntryPoint($szEntryPointURL, $nMetric);
 	   		GatewayEntryPoint::__construct($szEntryPointURL, $nMetric);
-	   		
+
 	     	$this->m_nRetryAttempts = $nRetryAttempts;
 	   	}
 	}
@@ -30,7 +31,7 @@
 	class RequestGatewayEntryPointList
 	{
 		private $m_lrgepRequestGatewayEntryPoint;
-		
+
 		public function getAt($nIndex)
 		{
 			if ($nIndex < 0 ||
@@ -38,25 +39,25 @@
 			{
 				throw new \Exception("Array index out of bounds");
 			}
-				
+
 			return $this->m_lrgepRequestGatewayEntryPoint[$nIndex];
 		}
-		
+
 		public function getCount()
 		{
 			return count($this->m_lrgepRequestGatewayEntryPoint);
 		}
-		
+
 		public function sort($ComparerClassName, $ComparerMethodName)
 		{
-			usort($this->m_lrgepRequestGatewayEntryPoint, array("$ComparerClassName","$ComparerMethodName"));		
+			usort($this->m_lrgepRequestGatewayEntryPoint, array("$ComparerClassName","$ComparerMethodName"));
 		}
-		
+
 		public function add($EntryPointURL, $nMetric, $nRetryAttempts)
 		{
 			array_push($this->m_lrgepRequestGatewayEntryPoint, new RequestGatewayEntryPoint($EntryPointURL, $nMetric, $nRetryAttempts));
 		}
-		
+
 		//constructor
 		public function __construct()
 		{
@@ -97,13 +98,13 @@
 	class GenericVariableList
 	{
 		private $m_lgvGenericVariableList;
-		
+
 		public function getAt($intOrStringValue)
 		{
 			$nCount = 0;
 			$boFound = false;
 			$gvGenericVariable = null;
-			
+
 			if (is_int($intOrStringValue))
 			{
 				if ($intOrStringValue < 0 ||
@@ -111,7 +112,7 @@
 				{
 					throw new \Exception("Array index out of bounds");
 				}
-				
+
 				return $this->m_lgvGenericVariableList[$intOrStringValue];
 			}
 			elseif (is_string($intOrStringValue))
@@ -136,17 +137,17 @@
 
 				return $gvGenericVariable;
 			}
-			else 
+			else
 			{
 				throw new \Exception("Invalid parameter type:$intOrStringValue");
 			}
 		}
-		
+
 		public function getCount()
 		{
 			return count($this->m_lgvGenericVariableList);
 		}
-		
+
 		public function add($szName, $szValue)
 		{
 			if ($szName != null &&
@@ -158,7 +159,7 @@
 	        	array_push($this->m_lgvGenericVariableList, $genericVariable);
 			}
 		}
-		
+
 		//constructor
 		public function __construct()
 		{
@@ -172,7 +173,7 @@
 	    private $m_szEmailAddress;
 	    private $m_szPhoneNumber;
 	    private $m_szCustomerIPAddress;
-	    
+
 	    public function getBillingAddress()
 	    {
 	    	return $this->m_adBillingAddress;
@@ -201,7 +202,7 @@
 	    {
 	    	$this->m_szCustomerIPAddress = $IPAddress;
 	    }
-	    
+
 	    //constructor
 	    public function __construct()
 	    {
@@ -222,7 +223,7 @@
 	    private $m_szState;
 	    private $m_szPostCode;
 	    private $m_nCountryCode;
-	    
+
 	    public function getAddress1()
 	    {
 	    	return $this->m_szAddress1;
@@ -283,7 +284,7 @@
 	    {
 	  		return $this->m_nCountryCode;
 	    }
-	        
+
 	    //constructor
 	    public function __construct()
 	    {
@@ -302,7 +303,7 @@
 	{
 		private  $m_nMonth;
 	    private $m_nYear;
-	    
+
 	    public function getMonth()
 	    {
 	    	return $this->m_nMonth;
@@ -311,7 +312,7 @@
 	    {
 	    	return $this->m_nYear;
 	    }
-	    
+
 	    //constructor
 	    public function __construct()
 	    {
@@ -344,7 +345,7 @@
 	    private $m_sdStartDate;
 	    private $m_szIssueNumber;
 	    private $m_szCV2;
-	    
+
 	    public function getCardName()
 	    {
 	    	return $this->m_szCardName;
@@ -385,7 +386,7 @@
 	    {
 	    	$this->m_szCV2 = $cv2;
 	    }
-	    
+
 	    //constructor
 	    public function __construct()
 	    {
@@ -427,7 +428,7 @@
 	    {
 	    	$this->m_szPassword = $password;
 	    }
-	    
+
 	    //constructor
 	    public function __construct()
 	    {
@@ -479,7 +480,7 @@
 	    public function setPreviousClientReference($previousClientReference)
 	    {
 	    	$this->m_szPreviousClientReference = $previousClientReference;
-	    }	    	    
+	    }
 	    //constructor
 	    public function __construct()
 	    {
@@ -505,7 +506,7 @@
 		private $m_tdsptThreeDSecurePassthroughData;
         private $m_tdsndThreeDSecureNotificationDetails;
         private $m_tdsaeThreeDSecureAuthenticationExemption;
-	    
+
 	    public function getMessageDetails()
 	    {
 	    	return $this->m_mdMessageDetails;
@@ -566,7 +567,7 @@
 	    {
 	    	return $this->m_tdsaeThreeDSecureAuthenticationExemption;
 	    }
-	    
+
 	    //constructor
 	    public function __construct()
 	    {
@@ -650,7 +651,7 @@
 	    {
 	    	return $this->m_boJavaScriptEnabled;
 	    }
-		
+
 	    //constructor
 	    public function __construct()
 	    {
@@ -666,7 +667,7 @@
 			$this->m_boJavaScriptEnabled = new \net\thepaymentgateway\common\NullableBool();
 	    }
 	}
-	    
+
 	class TransactionControl
 	{
 		private $m_boEchoCardType;
@@ -679,7 +680,7 @@
 	    private $m_boThreeDSecureOverridePolicy;
 	    private $m_szAuthCode;
 	    private $m_lgvCustomVariables;
-	    
+
 	    public function getEchoCardType()
 	    {
 	    	return $this->m_boEchoCardType;
@@ -732,7 +733,7 @@
 	    {
 	    	return $this->m_lgvCustomVariables;
 	    }
-	    
+
 	    //constructor
 	    public function __construct()
 	    {
@@ -779,7 +780,7 @@
 	    {
 	    	$this->m_szCRES = $CRES;
 	    }
-	   
+
 	    //constructor
 	    public function __construct()
 	    {
@@ -810,7 +811,7 @@
 	    {
 	    	$this->m_szMethodData = $methodData;
 	    }
-	   
+
 	    //constructor
 	    public function __construct()
 	    {
@@ -818,7 +819,7 @@
 	    	$this->m_szMethodData = "";
 	    }
 	}
-	
+
 	class ThreeDSecureNotificationDetails
 	{
 		private $m_szFingerprintNotificationURL;
@@ -840,7 +841,7 @@
 	    {
 	    	$this->m_szChallengeNotificationURL = $challengeNotificationURL;
 	    }
-	   
+
 	    //constructor
 	    public function __construct()
 	    {
@@ -848,7 +849,7 @@
 	    	$this->m_szChallengeNotificationURL = "";
 	    }
 	}
-	
+
 	class ThreeDSecurePassthroughData
 	{
 	 	private $m_szEnrolmentStatus;
@@ -949,7 +950,7 @@
 	    {
 	    	$this->m_szExemptionIndicator = $exemptionIndicator;
 	    }
-	   
+
 	    //constructor
 	    public function __construct()
 	    {
@@ -966,17 +967,17 @@
 	{
 		private $m_szIssuer;
 		private $m_nISOCode;
-		
+
 		public function getValue()
 		{
 			return $this->m_szIssuer;
 		}
-		
+
 		public function getISOCode()
 		{
 			return $this->m_nISOCode;
 		}
-		
+
 		//constructor
 	    public function __construct($szIssuer, \net\thepaymentgateway\common\NullableInt $nISOCode = null)
 	    {
@@ -984,7 +985,7 @@
 	        $this->m_nISOCode = $nISOCode;
 	    }
 	}
-	
+
 	class CardTypeData
 	{
 	    private $m_szCardType;
@@ -997,27 +998,27 @@
 	    {
 	        return $this->m_szCardType;
 	    }
-	   
+
 	    public function getIssuer()
 	    {
 	    	return $this->m_iIssuer;
 	    }
-	   
+
 	    public function getLuhnCheckRequired()
 	    {
 	        return $this->m_boLuhnCheckRequired;
 	    }
-	    
+
 	    public function getIssueNumberStatus()
 	    {
 	        return $this->m_szIssueNumberStatus;
 	    }
-	   
+
 	    public function getStartDateStatus()
 	    {
 	        return $this->m_szStartDateStatus;
 	    }
-	    
+
 	    //constructor
 	    public function __construct($szCardType, $iIssuer, \net\thepaymentgateway\common\NullableBool $boLuhnCheckRequired = null, $szIssueNumberStatus, $szStartDateStatus)
 	    {
@@ -1039,7 +1040,7 @@
 	 	{
 	 		return $this->m_szEntryPointURL;
 	 	}
-	 	
+
 	    public function getMetric()
 	    {
 	    	return $this->m_nMetric;
@@ -1071,7 +1072,7 @@
 		     {
 		  	 	throw new Exception("Array index out of bounds");
 		     }
-		
+
 	        return $this->m_lgepGatewayEntryPoint[$nIndex];
 	    }
 
@@ -1084,11 +1085,11 @@
 	    {
 	    	array_push($this->m_lgepGatewayEntryPoint, new GatewayEntryPoint($GatewayEntrypointOrEntrypointURL, $nMetric));
 	    }
-	    
+
 	    //constructor
 	    public function __construct()
 	    {
-	       $this->m_lgepGatewayEntryPoint = array();	
+	       $this->m_lgepGatewayEntryPoint = array();
 	    }
 	}
 
@@ -1096,17 +1097,17 @@
 	{
 		private $m_nStatusCode;
 	    private $m_szMessage;
-	    
+
 	    function getStatusCode()
 	    {
 	    	return $this->m_nStatusCode;
 	    }
-	    
+
 	    function getMessage()
 	    {
 	    	return $this->m_szMessage;
 	    }
-	    
+
 	    function __construct(\net\thepaymentgateway\common\NullableInt $nStatusCode = null,
 	    					 $szMessage)
 	    {
@@ -1124,16 +1125,16 @@
 	    public function getStatusCode()
 	    {
 	        return $this->m_nStatusCode;
-	    }	    
+	    }
 	    public function  getMessage()
 	    {
 	        return $this->m_szMessage;
-	    }	    
+	    }
 	    public function  getErrorMessages()
 	    {
 	        return $this->m_lszErrorMessages;
 	    }
-	    
+
 	    //constructor
 	    public function __construct($nStatusCode, $szMessage, \net\thepaymentgateway\common\StringList $lszErrorMessages = null)
 	    {
@@ -1152,7 +1153,7 @@
 	    {
 	        return $this->m_ptdPreviousTransactionResult;
 	    }
-	    
+
 	    public function  getAuthorisationAttempted()
 	    {
 	        return $this->m_boAuthorisationAttempted;
@@ -1222,17 +1223,17 @@
 	   	{
 			return $this->m_szPaREQ;
 	   	}
-	   
+
 	   	public function getACSURL()
 	   	{
 	       	return ($this->m_szACSURL);
 	   	}
-	      
+
 		public function getThreeDSecureVersion()
 	   	{
 	       	return ($this->m_szThreeDSecureVersion);
-	   	}  
-		
+	   	}
+
 		public function getCREQ()
 	   	{
 	       	return ($this->m_szCREQ);
@@ -1247,7 +1248,7 @@
 	   	{
 	       	return ($this->m_szMethodData);
 	   	}
-	
+
 	   	//constructor
 	   	public function __construct($szPaREQ, $szACSURL, $szThreeDSecureVersion, $szCREQ, $szMethodURL, $szMethodData)
 	   	{
@@ -1283,12 +1284,12 @@
 	    private $m_lgvCustomVariables;
 
 	    public function getCrossReference()
-	    { 
+	    {
 	        return $this->m_szCrossReference;
 	    }
-	    
+
 	    public function getAuthCode()
-	    { 
+	    {
 	        return $this->m_szAuthCode;
 	    }
 
@@ -1296,42 +1297,42 @@
 	    {
 	       	return $this->m_szAddressNumericCheckResult;
 	    }
-	    
+
 	    public function getPostCodeCheckResult()
-	    { 
+	    {
 			return $this->m_szPostCodeCheckResult;
 	    }
-	    
+
 	    public function getThreeDSecureAuthenticationCheckResult()
 	    {
 	        return $this->m_szThreeDSecureAuthenticationCheckResult;
 	    }
-	   
+
 	    public function getCV2CheckResult()
 	    {
 	    	return $this->m_szCV2CheckResult;
 	    }
-	    
+
 	    public function getCardTypeData()
 	    {
 	        return $this->m_ctdCardTypeData;
 	    }
-	   
+
 	    public function getAmountReceived()
 	    {
 	       	return $this->m_nAmountReceived;
 	    }
-	    
+
 	    public function getThreeDSecureOutputData()
 	    {
 	       	return $this->m_tdsodThreeDSecureOutputData;
 	    }
-	    
+
 	    public function getCustomVariables()
 	    {
 	       	return $this->m_lgvCustomVariables;
 	    }
-	    
+
 	 	//constructor
 	    public function __construct($szCrossReference,
 									$szAuthCode,
@@ -1347,7 +1348,7 @@
 	    {
 	     	//first calling the parent constructor
 	        parent::__construct($lgepGatewayEntryPoints);
-	        
+
 		   	$this->m_szCrossReference = $szCrossReference;
 			$this->m_szAuthCode = $szAuthCode;
 			$this->m_szAddressNumericCheckResult = $szAddressNumericCheckResult;
@@ -1412,19 +1413,19 @@
 	      	$goGatewayOutput = null;
 
 	      	$sSOAPClient = new \net\thepaymentgateway\common\soap\SOAP("GetGatewayEntryPoints", GatewayTransaction::getSOAPNamespace());
-	      
+
 	      	$boTransactionSubmitted = GatewayTransaction::processTransactionBase($sSOAPClient, "GetGatewayEntryPointsMessage", "GetGatewayEntryPointsResult", "GetGatewayEntryPointsOutputData", $goGatewayOutput, $lgepGatewayEntryPoints);
-	      
+
 	      	if ($boTransactionSubmitted)
 	      	{
 				$ggeprGetGatewayEntryPointsResult = $goGatewayOutput;
 
 	      		$ggepGetGatewayEntryPointsOutputData = new GetGatewayEntryPointsOutputData($lgepGatewayEntryPoints);
 	      	}
-	      
+
 	      	return $boTransactionSubmitted;
 	   	}
-	   
+
 	   	//constructor
 	   	public function __construct(RequestGatewayEntryPointList $lrgepRequestGatewayEntryPoints = null,
 	   								$nRetryAttempts = 1,
@@ -1433,9 +1434,9 @@
 	   		if ($nRetryAttempts == null &&
 	   			$nTimeout == null)
 	   		{
-	   			GatewayTransaction::__construct($lrgepRequestGatewayEntryPoints, 1, null);								
+	   			GatewayTransaction::__construct($lrgepRequestGatewayEntryPoints, 1, null);
 	   		}
-	   		else 
+	   		else
 	   		{
 	   			GatewayTransaction::__construct($lrgepRequestGatewayEntryPoints, $nRetryAttempts, $nTimeout);
 	   		}
@@ -1443,25 +1444,25 @@
 	}
 
 
-	class CardDetailsTransaction extends GatewayTransaction 
+	class CardDetailsTransaction extends GatewayTransaction
 	{
 		private $m_tdTransactionDetails;
 	    private $m_cdCardDetails;
 	    private $m_cdCustomerDetails;
-	     
+
 	    public function getTransactionDetails()
 	    {
 	    	return $this->m_tdTransactionDetails;
 	   	}
 	    public function getCardDetails()
 	    {
-	     	return $this->m_cdCardDetails;	
+	     	return $this->m_cdCardDetails;
 	    }
 	   	public function getCustomerDetails()
 	    {
 	    	return $this->m_cdCustomerDetails;
 	    }
-	     
+
 	   	public function processTransaction(CardDetailsTransactionResult &$cdtrCardDetailsTransactionResult = null, TransactionOutputData &$todTransactionOutputData = null)
 	   	{
 	     	$boTransactionSubmitted = false;
@@ -1473,7 +1474,7 @@
 	        $cdtrCardDetailsTransactionResult = null;
 
 	        $sSOAPClient = new \net\thepaymentgateway\common\soap\SOAP("CardDetailsTransaction", parent::getSOAPNamespace());
-	        
+
 	    	// transaction details
 	       	if ($this->m_tdTransactionDetails != null)
 	        {
@@ -1692,7 +1693,7 @@
                     if (!\net\thepaymentgateway\common\SharedFunctions::isStringNullOrEmpty($this->m_tdTransactionDetails->getThreeDSecureAuthenticationExemption()->getExemptionIndicator()))
                     {
                         $sSOAPClient->addParamAttribute("PaymentMessage.TransactionDetails.ThreeDSecureAuthenticationExemption", "ExemptionIndicator", $this->m_tdTransactionDetails->getThreeDSecureAuthenticationExemption()->getExemptionIndicator());
-                    }                   
+                    }
                 }
 	            if (!\net\thepaymentgateway\common\SharedFunctions::isStringNullOrEmpty($this->m_tdTransactionDetails->getOrderID()))
 	           	{
@@ -1811,32 +1812,32 @@
 	            	$sSOAPClient->addParam("PaymentMessage.CustomerDetails.CustomerIPAddress", $this->m_cdCustomerDetails->getCustomerIPAddress());
 	            }
 	       	}
-	       	
+
 	       	$boTransactionSubmitted = GatewayTransaction::processTransactionBase($sSOAPClient, "PaymentMessage", "CardDetailsTransactionResult", "TransactionOutputData", $goGatewayOutput, $lgepGatewayEntryPoints);
 
 			if ($boTransactionSubmitted)
 			{
 				$cdtrCardDetailsTransactionResult = SharedFunctions::getPaymentMessageGatewayOutput($sSOAPClient->getXmlTag(), "CardDetailsTransactionResult", $goGatewayOutput);
-	
+
 				$todTransactionOutputData = SharedFunctions::getTransactionOutputData($sSOAPClient->getXmlTag(), $lgepGatewayEntryPoints);
 			}
 
 			return ($boTransactionSubmitted);
 		}
-	     
+
 		public function __construct(RequestGatewayEntryPointList $lrgepRequestGatewayEntryPoints = null,
 	     							$nRetryAttempts = 1,
 	     							\net\thepaymentgateway\common\NullableInt $nTimeout = null)
 	  	{
 	    	parent::__construct($lrgepRequestGatewayEntryPoints, $nRetryAttempts, $nTimeout);
-	        	
+
 	        $this->m_tdTransactionDetails = new TransactionDetails();
 	        $this->m_cdCardDetails = new CardDetails();
 	        $this->m_cdCustomerDetails = new CustomerDetails();
 	    }
-	     
+
 	}
-	class CrossReferenceTransaction extends GatewayTransaction 
+	class CrossReferenceTransaction extends GatewayTransaction
 	{
 		private $m_tdTransactionDetails;
 	    private $m_ocdOverrideCardDetails;
@@ -1854,7 +1855,7 @@
 	    {
 	    	return $this->m_cdCustomerDetails;
 	    }
-	        
+
 	    public function processTransaction(CrossReferenceTransactionResult &$crtrCrossReferenceTransactionResult = null, TransactionOutputData &$todTransactionOutputData = null)
 	    {
 	    	$boTransactionSubmitted = false;
@@ -1902,7 +1903,7 @@
 	            	if (!\net\thepaymentgateway\common\SharedFunctions::isStringNullOrEmpty($this->m_tdTransactionDetails->getMessageDetails()->getPreviousClientReference()))
 	                {
 	                	$sSOAPClient->addParamAttribute("PaymentMessage.TransactionDetails.MessageDetails", "PreviousClientReference", $this->m_tdTransactionDetails->getMessageDetails()->getPreviousClientReference());
-	               	}	               		            	
+	               	}
 	            	if (!\net\thepaymentgateway\common\SharedFunctions::isStringNullOrEmpty($this->m_tdTransactionDetails->getMessageDetails()->getTransactionType()))
 	                {
 	                	$sSOAPClient->addParamAttribute("PaymentMessage.TransactionDetails.MessageDetails", "TransactionType", $this->m_tdTransactionDetails->getMessageDetails()->getTransactionType());
@@ -2091,7 +2092,7 @@
                     if (!\net\thepaymentgateway\common\SharedFunctions::isStringNullOrEmpty($this->m_tdTransactionDetails->getThreeDSecureAuthenticationExemption()->getExemptionIndicator()))
                     {
                         $sSOAPClient->addParamAttribute("PaymentMessage.TransactionDetails.ThreeDSecureAuthenticationExemption", "ExemptionIndicator", $this->m_tdTransactionDetails->getThreeDSecureAuthenticationExemption()->getExemptionIndicator());
-                    }                   
+                    }
                 }
 				if (!\net\thepaymentgateway\common\SharedFunctions::isStringNullOrEmpty($this->m_tdTransactionDetails->getOrderID()))
 	            {
@@ -2210,26 +2211,26 @@
 	                $sSOAPClient->addParam("PaymentMessage.CustomerDetails.CustomerIPAddress", $this->m_cdCustomerDetails->getCustomerIPAddress());
 	            }
 	        }
-	        
+
 	        $boTransactionSubmitted = GatewayTransaction::processTransactionBase($sSOAPClient, "PaymentMessage", "CrossReferenceTransactionResult", "TransactionOutputData", $goGatewayOutput, $lgepGatewayEntryPoints);
 
 	       	if ($boTransactionSubmitted)
 	        {
 				$crtrCrossReferenceTransactionResult = SharedFunctions::getPaymentMessageGatewayOutput($sSOAPClient->getXmlTag(), "CrossReferenceTransactionResult", $goGatewayOutput);
-	
+
 	        	$todTransactionOutputData = SharedFunctions::getTransactionOutputData($sSOAPClient->getXmlTag(), $lgepGatewayEntryPoints);
 	        }
 
 	        return $boTransactionSubmitted;
 	    }
-	    
+
 	    //constructor
 	    public function __construct(RequestGatewayEntryPointList $lrgepRequestGatewayEntryPoints = null,
 	    							$nRetryAttempts = 1,
 	    							\net\thepaymentgateway\common\NullableInt $nTimeout = null)
 	    {
 	    	GatewayTransaction::__construct($lrgepRequestGatewayEntryPoints, $nRetryAttempts, $nTimeout);
-		    	
+
 		    $this->m_tdTransactionDetails = new TransactionDetails();
 	      	$this->m_ocdOverrideCardDetails = new OverrideCardDetails();
 	       	$this->m_cdCustomerDetails = new CustomerDetails();
@@ -2239,12 +2240,12 @@
 	class ThreeDSecureEnvironment extends GatewayTransaction
 	{
 		private $m_tdsedThreeDSecureEnvironmentData;
-		
+
 		public function getThreeDSecureEnvironmentData()
 		{
 			return $this->m_tdsedThreeDSecureEnvironmentData;
 		}
-		
+
 		public function processTransaction(ThreeDSecureEnvironmentResult &$tdserThreeDSecureEnvironmentResult = null, TransactionOutputData &$todTransactionOutputData = null)
 		{
 			$boTransactionSubmitted = false;
@@ -2266,9 +2267,9 @@
 	            	$sSOAPClient->addParam("ThreeDSecureMessage.ThreeDSecureEnvironmentData.MethodData", $this->m_tdsedThreeDSecureEnvironmentData->getMethodData());
 	            }
 	        }
-	        
+
 	        $boTransactionSubmitted = GatewayTransaction::processTransactionBase($sSOAPClient, "ThreeDSecureMessage", "ThreeDSecureEnvironmentResult", "TransactionOutputData", $goGatewayOutput, $lgepGatewayEntryPoints);
-	       	
+
 	        if ($boTransactionSubmitted)
 	      	{
 				$tdserThreeDSecureEnvironmentResult = SharedFunctions::getPaymentMessageGatewayOutput($sSOAPClient->getXmlTag(), "ThreeDSecureEnvironmentResult", $goGatewayOutput);
@@ -2278,14 +2279,14 @@
 
 	        return $boTransactionSubmitted;
 		}
-		
+
 		//constructor
 		public function __construct(RequestGatewayEntryPointList $lrgepRequestGatewayEntryPoints = null,
 									$nRetryAttempts = 1,
 									\net\thepaymentgateway\common\NullableInt $nTimeout = null)
 	 	{
 	    	GatewayTransaction::__construct($lrgepRequestGatewayEntryPoints, $nRetryAttempts, $nTimeout);
-	    	
+
 	    	$this->m_tdsedThreeDSecureEnvironmentData = new ThreeDSecureEnvironmentData();
 	    }
 	}
@@ -2293,12 +2294,12 @@
 	class ThreeDSecureAuthentication extends GatewayTransaction
 	{
 		private $m_tdsidThreeDSecureInputData;
-		
+
 		public function getThreeDSecureInputData()
 		{
 			return $this->m_tdsidThreeDSecureInputData;
 		}
-		
+
 		public function processTransaction(ThreeDSecureAuthenticationResult &$tdsarThreeDSecureAuthenticationResult = null, TransactionOutputData &$todTransactionOutputData = null)
 		{
 			$boTransactionSubmitted = false;
@@ -2322,11 +2323,11 @@
 				if (!\net\thepaymentgateway\common\SharedFunctions::isStringNullOrEmpty($this->m_tdsidThreeDSecureInputData->getCRES()))
 	            {
 	            	$sSOAPClient->addParam("ThreeDSecureMessage.ThreeDSecureInputData.CRES", $this->m_tdsidThreeDSecureInputData->getCRES());
-	            }				
+	            }
 	        }
-	        
+
 	        $boTransactionSubmitted = GatewayTransaction::processTransactionBase($sSOAPClient, "ThreeDSecureMessage", "ThreeDSecureAuthenticationResult", "TransactionOutputData", $goGatewayOutput, $lgepGatewayEntryPoints);
-	       	
+
 	        if ($boTransactionSubmitted)
 	      	{
 				$tdsarThreeDSecureAuthenticationResult = SharedFunctions::getPaymentMessageGatewayOutput($sSOAPClient->getXmlTag(), "ThreeDSecureAuthenticationResult", $goGatewayOutput);
@@ -2336,14 +2337,14 @@
 
 	        return $boTransactionSubmitted;
 		}
-		
+
 		//constructor
 		public function __construct(RequestGatewayEntryPointList $lrgepRequestGatewayEntryPoints = null,
 									$nRetryAttempts = 1,
 									\net\thepaymentgateway\common\NullableInt $nTimeout = null)
 	 	{
 	    	GatewayTransaction::__construct($lrgepRequestGatewayEntryPoints, $nRetryAttempts, $nTimeout);
-	    	
+
 	    	$this->m_tdsidThreeDSecureInputData = new ThreeDSecureInputData();
 	    }
 	}
@@ -2351,7 +2352,7 @@
 	class GetCardType extends GatewayTransaction
 	{
 		private $m_szCardNumber;
-		
+
 		public function getCardNumber()
 		{
 			return $this->m_szCardNumber;
@@ -2376,9 +2377,9 @@
 	       	{
 	        	$sSOAPClient->addParam("GetCardTypeMessage.CardNumber", $this->m_szCardNumber);
 	        }
-	        
+
 	        $boTransactionSubmitted = GatewayTransaction::processTransactionBase($sSOAPClient, "GetCardTypeMessage", "GetCardTypeResult", "GetCardTypeOutputData", $goGatewayOutput, $lgepGatewayEntryPoints);
-			
+
 	        if ($boTransactionSubmitted)
 	        {
 				$gctrGetCardTypeResult = $goGatewayOutput;
@@ -2389,7 +2390,7 @@
 			}
 	        return $boTransactionSubmitted;
 		}
-		
+
 		//constructor
 		public function __construct(RequestGatewayEntryPointList $lrgepRequestGatewayEntryPoints = null,
 									$nRetryAttempts = 1,
@@ -2397,7 +2398,7 @@
 	  	{
 	    	GatewayTransaction::__construct($lrgepRequestGatewayEntryPoints, $nRetryAttempts, $nTimeout);
 
-	    	$this->m_szCardNumber = "";	
+	    	$this->m_szCardNumber = "";
 	    }
 	}
 
@@ -2457,7 +2458,7 @@
 	   	{
 	      	$rgepFirst = null;
 	      	$rgepSecond = null;
-	     
+
 	      	$rgepFirst = $x;
 	      	$rgepSecond = $y;
 
@@ -2469,7 +2470,7 @@
 	      	// returns >0 if rgepFirst greater than rgepSecond
 	      	// returns 0 if they are equal
 	      	// returns <0 if rgepFirst less than rgepSecond
-	      
+
 	      	// both null, then they are the same
 	      	if ($rgepFirst == null &&
 	          	$rgepSecond == null)
@@ -2547,25 +2548,25 @@
 
 	      	// first need to sort the gateway entry points into the correct usage order
 	       	$number = $this->m_lrgepRequestGatewayEntryPoints->sort("\\net\\thepaymentgateway\\paymentsystem\\GatewayTransaction","Compare");
-	       
+
 	       	// loop over the overall number of transaction attempts
 	       	while (!$boTransactionSubmitted &&
-	       			$nOverallRetryCount < $this->m_nRetryAttempts) 
+	       			$nOverallRetryCount < $this->m_nRetryAttempts)
 	       	{
 	       		$nOverallGatewayEntryPointCount = 0;
-	       			
+
 	       		// loop over the number of gateway entry points in the list
 	            while (!$boTransactionSubmitted &&
 	                 	$nOverallGatewayEntryPointCount < $this->m_lrgepRequestGatewayEntryPoints->getCount())
 	          	{
 					$rgepCurrentGatewayEntryPoint = $this->m_lrgepRequestGatewayEntryPoints->getAt($nOverallGatewayEntryPointCount);
-					
+
 					// ignore if the metric is "-1" this indicates that the entry point is offline
 	              	if ($rgepCurrentGatewayEntryPoint->getMetric() >= 0)
 	                {
 	              		$nGatewayEntryPointCount = 0;
 	                 	$sSOAPClient->setURL($rgepCurrentGatewayEntryPoint->getEntryPointURL());
-						
+
 	                    // loop over the number of times to try this specific entry point
 	                    while (!$boTransactionSubmitted &&
 	                          	$nGatewayEntryPointCount < $rgepCurrentGatewayEntryPoint->getRetryAttempts())
@@ -2583,7 +2584,7 @@
 		                            	$boTransactionSubmitted = true;
 
 							    		$sSOAPClient->getXmlTag()->getStringValue($szGatewayOutputXMLPath.".Message", $szMessage);
-							    		
+
                                         $nErrorMessageCount = 0;
                                         $lszErrorMessages = new \net\thepaymentgateway\common\StringList();
                                         $szXmlFormatString1 = $szGatewayOutputXMLPath.".ErrorMessages.MessageDetail[";
@@ -2597,12 +2598,12 @@
                                         }
 
 								    	$goGatewayOutput = new GatewayOutput($nStatusCode, $szMessage, $lszErrorMessages);
-		                                
+
 		                                // look to see if there are any gateway entry points
     		                            $nCount = 0;
                                         $szXmlFormatString1 = $szGatewayOutputXMLPath.".GatewayEntryPoints.GatewayEntryPoint[";
                                         $szXmlFormatString2 = "].";
-		                            		                            
+
 		                                while ($sSOAPClient->getXmlTag()->getStringValue($szXmlFormatString1.$nCount.$szXmlFormatString2.".EntryPointURL", $szEntryPointURL))
                                         {
                                             if (!$sSOAPClient->getXmlTag()->getIntegerValue($szXmlFormatString1.$nCount.$szXmlFormatString2.".Metric", $nMetric))
@@ -2616,11 +2617,11 @@
                                             }
                                             $lgepGatewayEntryPoints->add($gepGatewayEntryPoint);
                                             $nCount++;
-                                        }		                            
+                                        }
 								    }
                                 }
 	                    	}
-	                            
+
 	                        $nGatewayEntryPointCount++;
 	                  	}
 	              	}
@@ -2634,7 +2635,7 @@
 
 	   		return $boTransactionSubmitted;
 		}
-		
+
 		public function __construct(RequestGatewayEntryPointList $lrgepRequestGatewayEntryPoints = null,
 									$nRetryAttempts = 1,
 									\net\thepaymentgateway\common\NullableInt $nTimeout = null)
@@ -2686,7 +2687,7 @@
             {
                 $nAmountReceived = new \net\thepaymentgateway\common\NullableInt($nTempValue);
             }
-			
+
 			if (!$xtTransactionOutputDataXmlTag->getStringValue("TransactionOutputData.ThreeDSecureOutputData.ThreeDSecureVersion", $szThreeDSecureVersion) ||
 				\net\thepaymentgateway\common\SharedFunctions::isStringNullOrEmpty($szThreeDSecureVersion))
             {
@@ -2704,7 +2705,7 @@
             $xtTransactionOutputDataXmlTag->getStringValue("TransactionOutputData.ThreeDSecureOutputData.MethodData", $szMethodData);
 
             $tdsodThreeDSecureOutputData = new ThreeDSecureOutputData($szPaREQ, $szACSURL, $szThreeDSecureVersion, $szCREQ, $szMethodURL, $szMethodData);
-			
+
             $nCount = 0;
             $szXmlFormatString1 = "TransactionOutputData.CustomVariables.GenericVariable[";
             $szXmlFormatString2 = "]";
@@ -2795,7 +2796,7 @@
             {
                 $boAuthorisationAttempted = new \net\thepaymentgateway\common\NullableBool($boTempValue);
             }
-            
+
             // check to see if there is any previous transaction data
             if ($xtMessageResultXmlTag->getIntegerValue($szGatewayOutputXMLPath.".PreviousTransactionResult.StatusCode", $nTempValue))
             {
@@ -2807,7 +2808,7 @@
             {
                 $ptrPreviousTransactionResult = new PreviousTransactionResult($nPreviousStatusCode, $szPreviousMessage);
             }
-											
+
 			$pmgoPaymentMessageGatewayOutput = new PaymentMessageGatewayOutput($goGatewayOutput->getStatusCode(),
                                                                                $goGatewayOutput->getMessage(),
                                                                                $boAuthorisationAttempted,

@@ -1,14 +1,15 @@
 <?php
 	namespace net\thepaymentgateway\common\soap;
-	
+	use Opencart\System\Library\Extension\Payvector\Lib;
+
 	//accessing external files
 	require_once("TPG_Common.php");
 
 	class SOAPNamespace
-	{	
+	{
 		private $m_szNamespace;
 	    private $m_szPrefix;
-		
+
 	    public function getNamespace()
 	    {
 	     	return $this->m_szNamespace;
@@ -17,7 +18,7 @@
 	    {
 	      	return $this->m_szPrefix;
 	    }
-	     
+
 	    public function __construct($szPrefix, $szNamespace)
 	    {
 	    	$this->m_szNamespace = $szNamespace;
@@ -28,7 +29,7 @@
 	class SOAPNamespaceList
 	{
 		private $m_lsnSOAPNamespaceList;
-		
+
 		function getAt($nIndex)
 		{
 			if ($nIndex < 0 ||
@@ -36,20 +37,20 @@
 			{
 				throw new \Exception("Array index out of bounds");
 			}
-			
+
 			return $this->m_lsnSOAPNamespaceList[$nIndex];
 		}
-		
+
 		function getCount()
 		{
 			return count($this->m_lsnSOAPNamespaceList);
 		}
-		
+
 		public function add(SOAPNamespace $snSOAPNamespace)
 		{
 			$this->m_lsnSOAPNamespaceList[] = $snSOAPNamespace;
 		}
-		
+
 		//constructor
 		public function __construct()
 		{
@@ -64,7 +65,7 @@
 	 	//private $m_lspaSOAPParamAttributeList = array();
 	 	private $m_lspaSOAPParamAttributeList;
 	   	private $m_lspSOAPParamList;
-	   	
+
 	   	//public property functions
 	   	public function getName()
 	   	{
@@ -72,11 +73,11 @@
 	   	}
 	   	public function getValue()
 	   	{
-			return $this->m_szValue;   		
+			return $this->m_szValue;
 	   	}
 	   	public function setValue($szValue)
 	   	{
-			$this->m_szValue = $szValue;	
+			$this->m_szValue = $szValue;
 	   	}
 	   	public function getSOAPParamAttributeList()
 	   	{
@@ -86,37 +87,37 @@
 	   	{
 	   		return $this->m_lspSOAPParamList;
 	   	}
-	   	
+
 	   	//constructor
 	   	public function __construct($szName, $szValue, SOAPParamAttributeList $lspaSOAPParamAttributeList = null)
 	   	{
 	   		$nCount = 0;
 	   		$spaSOAPParamAttribute = null;
-	   		
+
 	   		if (!is_string($szName) ||
 	   			!is_string($szValue))
 	   		{
 	   			throw new \Exception("Invalid parameter type".$szName.'-'.$szValue);
 	   		}
-	   		
+
 	   		$this->m_szName = $szName;
 	   		//$this->m_szValue = \net\thepaymentgateway\common\SharedFunctions::replaceCharsInStringWithEntities($szValue);
 	   		$this->setValue($szValue);
-	   		
+
 	   		$this->m_lspSOAPParamList = new SOAPParamList();
 			$this->m_lspaSOAPParamAttributeList = new SOAPParamAttributeList();
-	   		
+
 	   		if ($lspaSOAPParamAttributeList != null)
 	   		{
 	   			for ($nCount = 0; $nCount < $lspaSOAPParamAttributeList->getCount();$nCount++)
 	   			{
 	   				$spaSOAPParamAttribute = new SOAPParamAttribute($lspaSOAPParamAttributeList->getAt($nCount)->getName(), $lspaSOAPParamAttributeList->getAt($nCount)->getValue());
-	   				
+
 	   				$this->m_lspaSOAPParamAttributeList->add($spaSOAPParamAttribute);
 	   			}
 	   		}
 	   	}
-	   	
+
 	   	function toXMLString()
 	   	{
 	   		$sbReturnString = null;
@@ -124,16 +125,16 @@
 	   		$spParam = null;
 	   		$spaAttribute = null;
 	   		$sbString = null;
-	   		
+
 	   		$sbReturnString = "";
 	   		$sbReturnString .= "<" . $this->getName();
-	   		
+
 	   		if ($this->m_lspaSOAPParamAttributeList != null)
 	   		{
 	   			for ($nCount = 0; $nCount < $this->m_lspaSOAPParamAttributeList->getCount(); $nCount++)
 	   			{
 	   				$spaAttribute = $this->m_lspaSOAPParamAttributeList->getAt($nCount);
-	   				
+
 	   				if ($spaAttribute != null)
 		   			{
 		   				$sbString = "";
@@ -142,7 +143,7 @@
 		   			}
 	   			}
 	   		}
-	   		
+
 	   		if ($this->m_lspSOAPParamList->getCount() == 0 &&
 	   		    $this->getValue() == "")
 	   		{
@@ -151,25 +152,25 @@
 	   		else
 	   		{
 	   			$sbReturnString .= ">";
-	   			
+
 	   			if ($this->getValue() != "")
 	   			{
 	   				$sbReturnString .= \net\thepaymentgateway\common\SharedFunctions::replaceCharsInStringWithEntities($this->getValue());
 	   			}
-	   			
+
 	   			for ($nCount = 0; $nCount < $this->m_lspSOAPParamList->getCount(); $nCount++)
 	   			{
 	   				$spParam = $this->m_lspSOAPParamList->getAt($nCount);
-	   				
+
 	   				if ($spParam != null)
 	   				{
 	   					$sbReturnString .= $spParam->toXMLString();
 	   				}
 	   			}
-	   			
+
 	   			$sbReturnString .= "</" . $this->getName() . ">";
-	   		}	   		
-		    
+	   		}
+
 	   		return (string)$sbReturnString;
 	   	}
 	}
@@ -177,7 +178,7 @@
 	class SOAPParamList
 	{
 		private $m_lspSOAPParamList;
-		
+
 		function getCount()
 		{
 			return count($this->m_lspSOAPParamList);
@@ -190,7 +191,7 @@
 			{
 				throw new \Exception("Array index out of bounds");
 			}
-			
+
 			return $this->m_lspSOAPParamList[$nIndex];
 		}
 
@@ -201,12 +202,12 @@
 			$nFound = 0;
 			$nCount = 0;
 			$spCurrentParam = null;
-			
+
 			while(!$boFound &&
 					$nCount < $this->getCount())
 			{
 				$spCurrentParam = $this->getAt($nCount);
-				
+
 				if ($spCurrentParam->getName() == $szTagNameToFind)
 				{
 					if ($nFound == $nIndex)
@@ -214,23 +215,23 @@
 						$boFound = true;
 						$spReturnParam = $spCurrentParam;
 					}
-					else 
+					else
 					{
 						$nFound++;
 					}
 				}
-				
+
 				$nCount++;
 			}
-			
+
 			return $spReturnParam;
-		}		
-		
+		}
+
 		public function add(SOAPParameter $spSOAPParam)
 		{
 			$this->m_lspSOAPParamList[] = $spSOAPParam;
 		}
-		
+
 		//constructor
 		public function __construct()
 		{
@@ -242,7 +243,7 @@
 	{
 		private $m_szName;
 	   	private $m_szValue;
-	   	
+
 	   	public function getName()
 	   	{
 	   		return $this->m_szName;
@@ -251,7 +252,7 @@
 	   	{
 	   		return $this->m_szValue;
 	   	}
-	   	
+
 	   	//constructor
 	   	public function __construct($szName, $szValue)
 	   	{
@@ -260,7 +261,7 @@
 	   		{
 	   			throw new \Exception("Invalid parameter type");
 	   		}
-	   		
+
 	   		$this->m_szName = $szName;
 	   		$this->m_szValue = $szValue;
 	   	}
@@ -269,7 +270,7 @@
 	class SOAPParamAttributeList
 	{
 		private $m_lspaSOAPParamAttributeAttributeList;
-		
+
 		public function getAt($nIndex)
 		{
 			if ($nIndex < 0 ||
@@ -277,19 +278,19 @@
 			{
 				throw new \Exception("Array index out of bounds");
 			}
-			
+
 			return $this->m_lspaSOAPParamAttributeAttributeList[$nIndex];
 		}
 		public function getCount()
 		{
 			return count($this->m_lspaSOAPParamAttributeAttributeList);
 		}
-		
+
 		public function add(SOAPParamAttribute $spaSOAPParamAttributeAttribute)
 		{
 			$this->m_lspaSOAPParamAttributeAttributeList[] = $spaSOAPParamAttributeAttribute;
 		}
-		
+
 		//constructor
 		public function __construct()
 		{
@@ -311,10 +312,10 @@
 	    private $m_xmlTag;
 	    private $m_nTimeout;
 	    private $m_eLastException;
-	    
+
 	    private $m_lsnSOAPNamespaceList;
 	    private $m_lspSOAPParamList;
-	    
+
 	    //public property like functions
 	    public function getMethod()
 	    {
@@ -372,7 +373,7 @@
 	    {
 	    	$this->m_eLastException;
 	    }
-	    
+
 	    public function buildPacket()
 	    {
 	    	$sbString = null;
@@ -382,12 +383,12 @@
 	    	$szFirstPrefix = null;
 	    	$nCount = 0;
 	    	$spSOAPParam = null;
-	    	
+
 	    	// build the xml SOAP request
 	        // start with the XML version
 	    	$sbString = "";
 	    	$sbString .= "<?xml version=\"1.0\" encoding=\"utf-8\" ?>";
-	    	
+
 	    	if ($this->m_lsnSOAPNamespaceList->getCount() == 0)
 	    	{
 	    		$szFirstNamespace = "http://schemas.xmlsoap.org/soap/envelope/";
@@ -396,43 +397,43 @@
 			else
 			{
 				$snNamespace = $this->m_lsnSOAPNamespaceList->getAt(0);
-				
+
 				if ($snNamespace == null)
 				{
 					$szFirstNamespace = "http://schemas.xmlsoap.org/soap/envelope/";
 					$szFirstPrefix = "soap";
 				}
-				else 
+				else
 				{
 					if ($snNamespace->getNamespace() == null ||
 						$snNamespace->getNamespace() == "")
 					{
 						$szFirstNamespace = "http://schemas.xmlsoap.org/soap/envelope/";
 					}
-					else 
+					else
 					{
 						$szFirstNamespace = $snNamespace->getNamespace();
 					}
-					
+
 					if ($snNamespace->getPrefix() == null ||
 						$snNamespace->getPrefix() == "")
 					{
 						$szFirstPrefix = "soap";
 					}
-					else 
+					else
 					{
 						$szFirstPrefix = $snNamespace->getPrefix();
 					}
 				}
 			}
-			
+
 			$sbString2 = "";
 			$sbString2 .= "<" .$szFirstPrefix. ":Envelope xmlns:" .$szFirstPrefix. "=\"" .$szFirstNamespace. "\"";
-			
+
 			for ($nCount = 1; $nCount <$this->m_lsnSOAPNamespaceList->getCount(); $nCount++)
 			{
 				$snNamespace = $this->m_lsnSOAPNamespaceList->getAt($nCount);
-				
+
 				if ($snNamespace != null)
 				{
 					if ($snNamespace->getNamespace() != "" &&
@@ -442,9 +443,9 @@
 					}
 				}
 			}
-			
+
 			$sbString2 .= ">";
-			
+
 			$sbString .= (string)$sbString2;
 			$sbString2 = "";
 			$sbString2 .= "<" .$szFirstPrefix. ":Body>";
@@ -452,52 +453,52 @@
 			$sbString2 = "";
 			$sbString2 .= "<" .$this->getMethod(). " xmlns=\"" .$this->getMethodURI(). "\">";
 			$sbString .= (string)$sbString2;
-			
+
 			for ($nCount = 0;$nCount < $this->m_lspSOAPParamList->getCount(); $nCount++)
 			{
 				$spSOAPParam = $this->m_lspSOAPParamList->getAt($nCount);
-				
+
 				if ($spSOAPParam != null)
 				{
-					$sbString .= $spSOAPParam->toXMLString();	
+					$sbString .= $spSOAPParam->toXMLString();
 				}
 			}
-			
+
 			$sbString2 = "";
 			$sbString2 .= "</" .$this->getMethod(). ">";
 			$sbString .= (string)$sbString2;
 			$sbString2 = "";
 			$sbString2 .= "</" .$szFirstPrefix. ":Body></" .$szFirstPrefix. ":Envelope>";
 			$sbString .= (string)$sbString2;
-			
+
 			$this->m_szSOAPPacket = (string)$sbString;
 			$this->m_boPacketBuilt = true;
 	    }
-	    
+
 	    public function sendRequest()
 	    {
 	    	$szString = "";
 	    	$boReturnValue = false;
-	    	$szUserAgent = "ThePaymentGateway SOAP Library PHP";    	
-	    	
+	    	$szUserAgent = "ThePaymentGateway SOAP Library PHP";
+
 	    	if (!$this->m_boPacketBuilt)
 	    	{
 	    		$this->buildPacket();
 	    	}
-			
+
 	    	$this->m_xmlParser = null;
 	    	$this->m_xmlTag = null;
-	    	
+
 	    	try
 	    	{
 		    	//intialising the curl for XML parsing
 		    	$cURL = curl_init();
-		    	
+
 		    	//http settings
 		    	$HttpHeader[] = "SOAPAction:". $this->getActionURI();
 		    	$HttpHeader[] = "Content-Type: text/xml; charset = utf-8";
 		    	$HttpHeader[] = "Connection: close";
-				
+
 		    	/*$http_options = array(CURLOPT_HEADER			=> false,
 	        							CURLOPT_HTTPHEADER		=> $HttpHeader,
 	        							CURLOPT_POST			=> true,
@@ -508,9 +509,9 @@
 	        							CURLOPT_ENCODING		=> "UTF-8",
 	        							CURLOPT_SSL_VERIFYPEER	=> false,	//disabling default peer SSL certificate verification
 	        							);
-	        							
+
 	        	curl_setopt_array($cURL, $http_options);*/
-	        							
+
 	        	curl_setopt($cURL, CURLOPT_HEADER, false);
 	        	curl_setopt($cURL, CURLOPT_HTTPHEADER, $HttpHeader);
 	        	curl_setopt($cURL, CURLOPT_POST, true);
@@ -520,24 +521,24 @@
 	        	curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
 	        	curl_setopt($cURL, CURLOPT_ENCODING, "UTF-8");
 	        	curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, false);
-	        	
+
 	        	if ($this->getTimeout() != null)
 				{
 					curl_setopt($cURL, CURLOPT_TIMEOUT, $this->getTimeout());
 				}
-				
+
 				//$this->m_szLastResponse = curl_exec($cURL);
 				$szString = curl_exec($cURL);
 				$errorNo = curl_errno($cURL);//test
 				$errorMsg = curl_error($cURL);//test
 				$header = curl_getinfo($cURL);//test
 				curl_close($cURL);
-				
+
 				$this->m_szLastResponse = $szString;
 
 				$szString = str_replace("<soap:Body>", " ", $szString);
 				$szString = str_replace("</soap:Body>", " ", $szString);
-				
+
                 $this->m_xmlParser = new \net\thepaymentgateway\common\XmlParser();
 
                 if (!$this->m_xmlParser->parseBuffer($szString))
@@ -564,16 +565,16 @@
 	    		$boReturnValue = false;
 	    		$m_eLastException = $exc;
 	    	}
-			
+
 			return $boReturnValue;
 	    }
-	    
+
 	    public function addParam($szName, $szValue, SOAPParamAttributeList $lspaSOAPParamAttributeList = null)
 	    {
 	    	$spSOAPParam;
-	    	
+
 	    	$spSOAPParam = new SOAPParameter($szName, $szValue, $lspaSOAPParamAttributeList);
-	    	
+
 	    	$this->addParam2($spSOAPParam, true);
 	    }
 	    private function addParam2(SOAPParameter $spSOAPParam, $boOverWriteValue)
@@ -596,17 +597,17 @@
 			// need to check the name of the incoming item to see if it is a
 	       	// complex soap parameter
 	        $lszHierarchicalNames = new \net\thepaymentgateway\common\StringList();
-	        
+
 	        $lszHierarchicalNames = \net\thepaymentgateway\common\SharedFunctions::getStringListFromCharSeparatedString($spSOAPParam->getName(), ".");
-	        
+
 	        if ($lszHierarchicalNames->getCount() == 1)
 	        {
 	        	$this->m_lspSOAPParamList->add($spSOAPParam);
 	        }
-	        else 
+	        else
 	        {
 	        	$lspParamList = $this->m_lspSOAPParamList;
-	        	
+
 	        	//complex
 	        	for ($nCount = 0; $nCount < $lszHierarchicalNames->getCount(); $nCount++)
 	        	{
@@ -626,7 +627,7 @@
 	                    {
 	                    	$boFound = false;
 	                    }
-	                    else 
+	                    else
 	                	{
 	                    	$boFound = true;
 
@@ -656,18 +657,18 @@
 	                        $lspParamList = $spWorkingSOAPParam->getSOAPParamList();
 	                  	}
 	             	}
-	             		
+
 	             	if (!$boFound)
 	                {
 	                	// is this the last tag?
 	                    if ($nCount == ($lszHierarchicalNames->getCount() - 1))
 	                    {
 	                    	$lspaAttributeList = new SOAPParamAttributeList();
-	                            
+
 	                        for ($nCount2 = 0; $nCount2 < $spSOAPParam->getSOAPParamAttributeList()->getCount(); $nCount2++)
 	                        {
 	                        	$spaSOAPParamAttributeList = $spSOAPParam->getSOAPParamAttributeList();
-	                               	
+
 	                            $spaAttribute = $spaSOAPParamAttributeList->getAt( $nCount2);
 
 	                            if ($spaAttribute != null)
@@ -690,32 +691,32 @@
 	              	}
 	        	}
 	        }
-	        
+
 	        $this->m_boPacketBuilt = false;
 	    }
-	        
+
 	    public function addParamAttribute($szName, $szParamAttributeName, $szParamAttributeValue)
 	    {
 	    	$spSOAPParam;
 	    	$lspaSOAPParamAttributeList;
 	    	$spaSOAPParamAttribute;
-	    	
+
 	    	if (!is_string($szName) ||
 	    		!is_string($szParamAttributeName) ||
 	    		!is_string($szParamAttributeValue))
 	    	{
 	    		throw new \Exception("Invalid parameter type");
 	    	}
-	    	
+
 	    	$lspaSOAPParamAttributeList = new SOAPParamAttributeList();
 	    	$spaSOAPParamAttribute = new SOAPParamAttribute($szParamAttributeName, $szParamAttributeValue);
 	    	$lspaSOAPParamAttributeList->add($spaSOAPParamAttribute);
-	    	
+
 	    	$spSOAPParam = new SOAPParameter($szName, "", $lspaSOAPParamAttributeList);
-	    	
+
 	    	$this->addParam2($spSOAPParam, false);
 	    }
-	    
+
 	    //overloading constructor
 	    private function SOAP1($szMethod, $szMethodURI)
 	    {
@@ -734,7 +735,7 @@
 	      	$this->m_szMethodURI = $szMethodURI;
 	       	$this->m_szURL = $szURL;
 	      	$this->m_szSOAPEncoding = $szSOAPEncoding;
-	      	
+
 	      	if ($this->m_szMethodURI != "" &&
 	          	$this->m_szMethod != "")
 	      	{
@@ -747,7 +748,7 @@
 	              	$this->m_szActionURI = $this->m_szMethodURI . "/" . $this->m_szMethod;
 	            }
 	        }
-	        
+
 	        $this->m_lsnSOAPNamespaceList = new SOAPNamespaceList();
 
 	      	if ($boAddDefaultNamespaces)
@@ -771,13 +772,13 @@
 
 	        $this->m_boPacketBuilt = false;
 	    }
-	    
+
 	    //constructor
 	    public function __construct()
 	    {
 	    	$num_args = func_num_args();
 			$args = func_get_args();
-			
+
 			switch ($num_args)
 			{
 				case 2:

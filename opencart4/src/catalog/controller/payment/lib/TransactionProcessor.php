@@ -22,9 +22,9 @@ namespace Opencart\Catalog\Controller\Extension\Payvector\Payment;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-require __DIR__ . '/ThePaymentGateway/PaymentSystem.php';
-require __DIR__ . '/ISOHelper.php';
-require __DIR__ . '/PaymentFormHelper.php';
+require_once __DIR__ . '/ThePaymentGateway/PaymentSystem.php';
+require_once __DIR__ . '/ISOHelper.php';
+require_once __DIR__ . '/PaymentFormHelper.php';
 
 /**
  * Processes transactions with the PayVector Gateway
@@ -700,7 +700,7 @@ class TransactionProcessor
 		$transactionProcessed = $cdtCardDetailsTransaction->processTransaction(
 			$cdtrCardDetailsTransactionResult,
 			$todTransactionOutputData);
-			
+
 		return new CardDetailsFinalTransactionResult($transactionProcessed, $cdtCardDetailsTransaction, $cdtrCardDetailsTransactionResult, $todTransactionOutputData, $sessionHandler);
 	}
 
@@ -756,7 +756,7 @@ class TransactionProcessor
 		$toTransactionObject->getTransactionDetails()->getThreeDSecureBrowserDetails()->setAcceptHeaders("*/*");
 		$toTransactionObject->getTransactionDetails()->getThreeDSecureBrowserDetails()->setUserAgent($_SERVER["HTTP_USER_AGENT"]);
 
-		//3DSv2 Parameters 
+		//3DSv2 Parameters
 
 		if ($this->JavaEnabled != "") {
 			$toTransactionObject->getTransactionDetails()->getThreeDSecureBrowserDetails()->getJavaEnabled()->setValue($this->JavaEnabled);
@@ -781,7 +781,7 @@ class TransactionProcessor
 
 		$toTransactionObject->getTransactionDetails()->getThreeDSecureNotificationDetails()->setChallengeNotificationURL($this->ChallengeNotificationURL);
 		$toTransactionObject->getTransactionDetails()->getThreeDSecureNotificationDetails()->setFingerprintNotificationURL($this->FingerprintNotificationURL);
-		
+
 		$toTransactionObject->getTransactionDetails()->getCurrencyCode()->setValue($this->currencyCode);
 		$toTransactionObject->getTransactionDetails()->getAmount()->setValue($this->amount);
 		$toTransactionObject->getTransactionDetails()->setOrderID($this->orderID);
@@ -1163,7 +1163,7 @@ abstract class DirectFinalTransactionResult extends BaseFinalTransactionResult
 
 		//Save orderID in the session if we need to pass through the 3DS page
 		if($this->getStatusCode() === 3)
-		{			
+		{
 			$sessionHandler->setSessionValue( 'payvector_transaction_order_id', $this->getOrderID($sessionHandler));
 		}
 	}
@@ -1371,9 +1371,9 @@ class ThreeDSecureFinalTransactionResult extends DirectFinalTransactionResult
 	public function getCardFirstSix($sessionHandler)
 	{
   	  	$cardFirstSix = $sessionHandler->getSessionValue('payvector_transaction_card_first_six');
-		if (!empty($cardFirstSix)) 
+		if (!empty($cardFirstSix))
 		{
-			$this->cardFirstSix = $sessionHandler->getSessionValue('payvector_transaction_card_first_six');		
+			$this->cardFirstSix = $sessionHandler->getSessionValue('payvector_transaction_card_first_six');
 			$sessionHandler->unsetSessionValue('payvector_transaction_card_first_six');
 		}
 		return $this->cardFirstSix;
@@ -1381,9 +1381,9 @@ class ThreeDSecureFinalTransactionResult extends DirectFinalTransactionResult
 	public function getCardLastFour($sessionHandler)
 	{
 		$cardLastFour = $sessionHandler->getSessionValue('payvector_transaction_card_last_four');
-		if (!empty($cardLastFour)) 
-		{			
-			$this->cardLastFour = $sessionHandler->getSessionValue('payvector_transaction_card_last_four');			
+		if (!empty($cardLastFour))
+		{
+			$this->cardLastFour = $sessionHandler->getSessionValue('payvector_transaction_card_last_four');
 			$sessionHandler->unsetSessionValue('payvector_transaction_card_last_four');
 		}
 		return $this->cardLastFour;
@@ -1391,9 +1391,9 @@ class ThreeDSecureFinalTransactionResult extends DirectFinalTransactionResult
 	public function getOrderID($sessionHandler)
 	{
 		$orderID = $sessionHandler->getSessionValue('payvector_transaction_order_id');
-		if (!empty($orderID))  
+		if (!empty($orderID))
 		{
-			$this->orderID = $sessionHandler->getSessionValue('payvector_transaction_order_id');			
+			$this->orderID = $sessionHandler->getSessionValue('payvector_transaction_order_id');
 			$sessionHandler->unsetSessionValue('payvector_transaction_order_id');
 		}
 		return $this->orderID;
