@@ -117,11 +117,11 @@ class PayVectorPaymentModuleFrontController extends ModuleFrontController
 			)
 			{
 				$transaction_processor->setRgeplRequestGatewayEntryPointList($this->getEntryPointList());
-				$transaction_processor->setCV2(Tools::safeOutput($_POST['payvector_cc_cvv']));
+				
 
 				if(Tools::getValue('payvector_payment_type') === SaleType::NewSale)
 				{
-					
+					$transaction_processor->setCV2(Tools::safeOutput($_POST['payvector_cc_cvv']));
 					$final_transaction_result = $transaction_processor->doCardDetailsTransaction(
 						Tools::safeOutput($_POST['payvector_cc_number']),
 						Tools::safeOutput($_POST['payvector_cc_expiry']['month']),
@@ -132,6 +132,7 @@ class PayVectorPaymentModuleFrontController extends ModuleFrontController
 				}
 				else
 				{
+					$transaction_processor->setCV2(Tools::safeOutput($_POST['payvector_cc_cvv2']));
 					$cross_reference = new CrossReference();
 					$cross_reference->loadFromCustomerID($this->context->cart->id_customer);										
 

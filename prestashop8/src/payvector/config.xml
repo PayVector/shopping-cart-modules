@@ -2,7 +2,7 @@
 <module>
 	<name>payvector</name>
 	<displayName><![CDATA[PayVector]]></displayName>
-	<version><![CDATA[2.0.0]]></version>
+	<version><![CDATA[2.2.0]]></version>
 	<description><![CDATA[PayVector payment extension for PrestaShop. This extension fully supports the processing of 3D secure (Verified By Visa and Mastercard SecureCode) transactions.]]></description>
 	<author><![CDATA[Iridium Corporation]]></author>
 	<tab><![CDATA[payments_gateways]]></tab>

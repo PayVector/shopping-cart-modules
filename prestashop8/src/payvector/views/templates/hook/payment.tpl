@@ -92,8 +92,10 @@
 				width: 66.6667%;
 			}
 			.form-row label {
+				text-align: left;
+			}
+			#payvector-new-card #payvector-stored-card{
 				text-align: right;
-
 			}
 			.form-row select {
 				float: left;
@@ -104,6 +106,14 @@
 				margin-right: 5px;
 				text-align: right;
 			}
+			.payvector-card-details label {
+				text-align: right;
+			}
+
+			.payvector-cvv label {
+				text-align: right;
+			}
+
 			</style>
 			{literal}
 			<script>
@@ -141,20 +151,28 @@
 						{/if}
 					{else}
 					<div class="form-row row">
-						<label class="col-xs-6" for="payvector-stored-card">{l s='Use saved' mod='payvector'} {$card_type} {l s='card' mod='payvector'}{if !empty($card_last_four)} xxxx-{$card_last_four}{/if}</label>
-						<div class="col-xs-6">
+						<div class="col-xs-2">
 							<input id="payvector-stored-card" type="radio" name="payvector_payment_type" value="stored_card" checked>
 						</div>
+						<label class="col-xs-10" for="payvector-stored-card">{l s='Use saved' mod='payvector'} {$card_type} {l s='card' mod='payvector'}{if !empty($card_last_four)} xxxx-{$card_last_four}{/if}</label>
+						
 					</div>
-					<div class="form-row row">
-						{if $capture_method == "Hosted Payment Form"}
-						<label class="col-xs-6" for="payvector-new-card">{l s='Enter new card details on our secure payment form' mod='payvector'}</label>
-						{else}
-						<label class="col-xs-6" for="payvector-new-card">{l s='Enter new card details' mod='payvector'}</label>
-						{/if}
+					<div class="form-row row payvector-cvv">
+						<label class="col-xs-6" for="payvector_cc_cvv2">{l s='CVV' mod='payvector'} *</label>
 						<div class="col-xs-6">
+							<input type="text" value='' maxlength='4' id="payvector_cc_cvv2" name="payvector_cc_cvv2">
+						</div>
+					</div>	
+					<div class="form-row row">
+						<div class="col-xs-2">
 							<input id="payvector-new-card" type="radio" name="payvector_payment_type" value="new_card">
 						</div>
+						{if $capture_method == "Hosted Payment Form"}
+						<label class="col-xs-10" for="payvector-new-card">{l s='Enter new card details on our secure payment form' mod='payvector'}</label>
+						{else}
+						<label class="col-xs-10" for="payvector-new-card">{l s='Enter new card details' mod='payvector'}</label>
+						{/if}
+						
 					</div>
 					{/if}
 					<div class="form-row row payvector-card-details">
@@ -189,7 +207,7 @@
 							</select>
 						</div>
 					</div>					
-					<div class="form-row row payvector-cvv">
+					<div class="form-row row payvector-card-details">
 						<label class="col-xs-6" for="payvector_cc_cvv">{l s='CVV' mod='payvector'} *</label>
 						<div class="col-xs-6">
 							<input type="text" value='' maxlength='4' id="payvector_cc_cvv" name="payvector_cc_cvv">
@@ -247,15 +265,18 @@
 							if($storedCard.is(":checked"))
 							{
 								$cardDetailsInput.hide();
+								$cvvContainer.show();
 							}
 
 							$paymentType.change(function() {
 								if(jQuery1_11_2(this).val() === "new_card")
 								{
+									$cvvContainer.hide();
 									$cardDetailsInput.show();
 								}
 								else
 								{
+									$cvvContainer.show();
 									$cardDetailsInput.hide();
 								}
 							});

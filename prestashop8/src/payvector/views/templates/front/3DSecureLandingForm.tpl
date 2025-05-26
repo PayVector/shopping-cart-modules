@@ -1,3 +1,5 @@
+{extends file='page.tpl'}
+{block name='page_content'}
 {l s='You are enrolled for 3D Secure Verification. Your card will not be charged until you verify the transaction. For your security, please fill out
 the form below to complete your order. Do not click the refresh or back button or this transaction may be interrupted or cancelled.' mod='payvector'}
 <br>
@@ -16,3 +18,4 @@ the form below to complete your order. Do not click the refresh or back button o
 	var frm = document.getElementById("form_auth3d");
 	frm.submit();
 </script>
+{/block}

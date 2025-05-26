@@ -32,6 +32,8 @@
 	<input type="hidden" name="EchoCV2CheckResult" value="true" />
 	<input type="hidden" name="EchoThreeDSecureAuthenticationCheckResult" value="true" />
 	<input type="hidden" name="EchoCardType" value="true" />
+	<input type="hidden" name="EchoCardNumberFirstSix" value="true" />
+	<input type="hidden" name="EchoCardNumberLastFour" value="true" />
 	<input type="hidden" name="ServerResultURLCookieVariables" value="" />
 	<input type="hidden" name="ServerResultURLFormVariables" value="" />
 	<input type="hidden" name="ServerResultURLQueryStringVariables" value="" />
