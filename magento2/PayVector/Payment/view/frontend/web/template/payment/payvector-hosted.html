@@ -1,0 +1,69 @@
+<div class="payment-method" data-bind="css: {'_active': (getCode() == isChecked())}">
+    <div class="payment-method-title field choice">
+        <input type="radio" name="payment[method]" class="radio"
+            data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()" />
+        <label data-bind="attr: {'for': getCode()}" class="label">
+            <img data-bind="attr: {src: getPaymentSrc(), alt: $t('Pay with PayVector')}" class="payment-icon"
+                style="height:60px;" />
+            <span data-bind="text: getTitle()"></span>
+        </label>
+    </div>
+    <div class="payment-method-content">
+        <!-- ko if: lastUsedCard -->
+        <div class="field choice">
+            <input type="radio" name="payvector_card_option" id="payvector_saved" value="saved"
+                data-bind="checked: selectedCardOption" />
+            <label for="payvector_saved">
+                Use saved card:
+                <strong
+                    data-bind="text: lastUsedCard() ? lastUsedCard().card_type + ' ending in ' + lastUsedCard().last4 :''"></strong>
+            </label>
+        </div>
+        <!-- ko if: !lastUsedCard() || selectedCardOption() === 'saved' -->
+        <fieldset
+            data-bind="attr: {class: 'fieldset payment items ' + getCode(), id: 'payment_form_' + getCode()}">
+            <div class="field cvv required">
+                <label data-bind="attr: {for: getCode() + '_cc_cid'}" class="label">
+                    <span><!-- ko i18n: 'CV2'--><!-- /ko --></span>
+                </label>
+                <div class="control _with-tooltip">
+                    <input type="number" autocomplete="off" class="input-text cvv" name="payment[cc_cid]" value=""
+                        oncopy="return false;" oncut="return false;" onpaste="return false;" data-bind="attr: {id: getCode() + '_cc_cid',
+                        title: $t('Card Verification Number'),
+                        'data-container': getCode() + '-cc-cvv',
+                        'data-validate': JSON.stringify({'required-number':true, 'validate-card-cvv':'#' + getCode() + '_cc_type'})},                        
+                        value: creditCardVerificationNumber" />
+                </div>
+            </div>
+        </fieldset>
+        <!-- /ko -->
+        <div class="field choice">
+            <input type="radio" name="payvector_card_option" id="payvector_new" value="new"
+                data-bind="checked: selectedCardOption" />
+            <label for="payvector_new">On clicking Submit you will be redirected to our secure payment form</label>
+        </div>
+        <!-- /ko -->
+        <div class="payment-method-billing-address">
+            <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+        <div class="checkout-agreements-block">
+            <!-- ko foreach: $parent.getRegion('before-place-order') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+        <div class="actions-toolbar">
+            <div class="primary">
+                <button class="action primary checkout" type="submit" data-bind="
+                        click: placeOrder,
+                        attr: {title: $t('Place Order')},
+                        css: {disabled: !isPlaceOrderActionAllowed()},
+                        enable: (getCode() == isChecked())
+                        " disabled>
+                    <span data-bind="text: $t('Place Order')"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="payment">
+            <group id="payvector_payment" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                <label><![CDATA[PayVector]]></label>
+                <field id="active" translate="label" type="select" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Enable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Title</label>					
+                </field>		
+                 <field id="merchantid" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Merchant ID</label>
+                </field>
+                <field id="password" translate="label" type="password" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Password</label>
+                </field>
+				<field id="mode" translate="label" type="select" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Payment Integration Method</label>
+                    <source_model>PayVector\Payment\Model\Source\PaymentMode</source_model>
+                </field>
+                <field id="presharedkey" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Pre Shared Key</label>
+					<comment><![CDATA[<strong>Please note</strong>: The above value is only applicable to Hosted Payment Form payment mode]]></comment>
+                </field>
+                <field id="hashmethod" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Hash Method</label>
+                    <source_model>PayVector\Payment\Model\Source\HashMethod</source_model>
+					<comment><![CDATA[<strong>Please note</strong>: The above value is only applicable to Hosted Payment Form payment mode]]></comment>
+                </field>                
+                <field id="payment_action" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Payment Action</label>
+                    <source_model>PayVector\Payment\Model\Source\PaymentAction</source_model>					
+                </field>                                
+				<field id="sort_order" translate="label" type="text" sortOrder="1000" showInDefault="1" showInWebsite="1">
+                    <label>Sort Order</label>
+                    <frontend_class>validate-number</frontend_class>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

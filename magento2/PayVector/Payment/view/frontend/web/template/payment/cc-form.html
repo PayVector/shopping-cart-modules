@@ -1,0 +1,85 @@
+<fieldset data-bind="attr: {class: 'fieldset payment items ' + getCode(), id: 'payment_form_' + getCode()}">
+
+    <div class="field text required"><br>
+        <label data-bind="attr: {for: getCode() + '_cc_name'}" class="label">
+            <span><!-- ko i18n: 'Name On Card'--><!-- /ko --></span>
+        </label>
+        <div class="control">
+            <input type="text" class="input-text" data-bind="attr: {
+                            name: getCode() + '_cc_owner',
+                            id: getCode() + '_cc_owner'
+                          },
+                          value: creditCardOwner" data-validate='{"required":true}' />
+        </div>
+    </div>
+
+    <div class="field number required">
+        <label data-bind="attr: {for: getCode() + '_cc_number'}" class="label">
+            <span><!-- ko i18n: 'Card Number'--><!-- /ko --></span>
+        </label>
+        <div class="control">
+            <input type="text" class="input-text" data-bind="attr: {
+                            name: getCode() + '_cc_number',
+                            id: getCode() + '_cc_number',
+                            'data-validate': JSON.stringify({'required-number':true}),
+                          },
+                          value: creditCardNumber" />
+        </div>
+    </div>
+
+    <div class="field date required">
+        <label data-bind="attr: {for: getCode() + '_expiration'}" class="label">
+            <span><!-- ko i18n: 'Expiration Date'--><!-- /ko --></span>
+        </label>
+        <div class="control">
+            <div class="fields group group-2">
+                <div class="field no-label month">
+                    <div class="control">
+                        <select name="payment[cc_exp_month]" class="select select-month" data-bind="attr: {
+                                id: getCode() + '_expiration',
+                                'data-container': getCode() + '-cc-month',
+                                'data-validate': JSON.stringify({required:true})
+                            },                            
+                            options: getCcMonths(),
+                            optionsValue: 'value',
+                            optionsText: 'month',
+                            optionsCaption: $t('Month'),
+                            value: creditCardExpMonth">
+                        </select>
+                    </div>
+                </div>
+                <div class="field no-label year">
+                    <div class="control">
+                        <select name="payment[cc_exp_year]" class="select select-year" data-bind="attr: {
+                                id: getCode() + '_expiration_yr',
+                                'data-container': getCode() + '-cc-year',
+                                'data-validate': JSON.stringify({required:true})
+                            },                            
+                            options: getCcYears(),
+                            optionsValue: 'value',
+                            optionsText: 'year',
+                            optionsCaption: $t('Year'),
+                            value: creditCardExpYear">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="field cvv required">
+        <label data-bind="attr: {for: getCode() + '_cc_cid'}" class="label">
+            <span><!-- ko i18n: 'CV2'--><!-- /ko --></span>
+        </label>
+
+        <div class="control _with-tooltip">
+            <input type="number" autocomplete="off" class="input-text cvv" name="payment[cc_cid]" value=""
+                oncopy="return false;" oncut="return false;" onpaste="return false;" data-bind="attr: {id: getCode() + '_cc_cid',
+                        title: $t('Card Verification Number'),
+                        'data-container': getCode() + '-cc-cvv',
+                        'data-validate': JSON.stringify({'required-number':true, 'validate-card-cvv':'#' + getCode() + '_cc_type'})},                        
+                        value: creditCardVerificationNumber" />
+        </div>
+    </div>
+</fieldset>

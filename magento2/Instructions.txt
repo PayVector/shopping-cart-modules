@@ -1,0 +1,23 @@
+To Install
+- copy the PayVector folder to Magento app/code folder
+- run the following commands from a SSH - in the root folder of Magento installation
+  sudo php bin/magento module:enable PayVector_Payment
+  sudo php bin/magento setup:upgrade
+  sudo php bin/magento cache:flush
+  sudo php bin/magento setup:di:compile
+
+To Uninstall Completely
+- run the following commands from a SSH - in the root folder of Magento installation
+  sudo php bin/magento module:disable PayVector_Payment
+- remove the PayVector folder from Magento app/code folder
+- run these 2 sql commands against the Magento DB
+  DELETE FROM setup_module WHERE module = 'PayVector_Payment';
+  DELETE FROM core_config_data WHERE path LIKE 'payment/payvector_payment%';
+
+To Upgrade
+- remove the old PayVector folder from Magento app/code folder
+- copy the new PayVector folder to Magento app/code folder
+- run the following commands from a SSH - in the root folder of Magento installation
+  sudo php bin/magento setup:upgrade
+  sudo php bin/magento cache:flush
+  sudo php bin/magento setup:di:compile

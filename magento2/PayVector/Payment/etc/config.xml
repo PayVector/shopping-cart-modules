@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <payvector_payment>
+				<active>1</active>
+                <title>PayVector</title>
+                <model>PayVector\Payment\Model\Payment</model>
+                <hashmethod>sha1</hashmethod>
+                <paymentprocessordomain>payvector.net</paymentprocessordomain>                                
+                <payment_action>authorize_capture</payment_action>
+                <mode>hosted</mode>                
+                <cv2mandatory>1</cv2mandatory>
+                <address1mandatory>1</address1mandatory>
+                <citymandatory>1</citymandatory>
+                <statemandatory>1</statemandatory>
+                <postcodemandatory>1</postcodemandatory>
+                <countrymandatory>1</countrymandatory>
+                <resultdeliverymethod>SERVER_PULL</resultdeliverymethod>
+                <allowspecific>0</allowspecific>                
+                <redirect_url>payvector/standard/redirect</redirect_url>
+				<callback_url>payvector/standard/callback</callback_url>
+                <threeds_url>payvector/standard/threedsecure</threeds_url>
+				<can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+            </payvector_payment>
+        </payment>
+    </default>
+</config>
