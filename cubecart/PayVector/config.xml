@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<installer version="1.0">
+  <info>
+	<uid>gateway-PayVector@cubecart.com</uid>
+	<type>gateway</type>
+	<name><![CDATA[PayVector]]></name>
+	<description><![CDATA[Accept card payments via the PayVector payment gateway]]></description>
+	<version>2.4.0</version>
+	<minVersion>6.0.0</minVersion>
+	<maxVersion>6.5.9</maxVersion>
+	<creator><![CDATA[PayVector]]></creator>
+	<homepage><![CDATA[http://www.payvector.co.uk/]]></homepage>
+	<block>false</block>
+  </info>
+</installer>
