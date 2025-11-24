@@ -1,0 +1,61 @@
+msgid ""
+msgstr "Project-Id-Version: tygh\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language-Team: English\n"
+"Language: en_US"
+
+msgctxt "Addons::name::PayVector"
+msgid "PayVector Payments"
+msgstr "PayVector Payments"
+
+msgctxt "Addons::description::payvector"
+msgid "Allow PayVector merchants to accept credit & debit card payments"
+msgstr "Allow PayVector merchants to accept credit & debit card payments"
+
+msgctxt "SettingsOptions::payvector::payvector_settings"
+msgid "Payment settings"
+msgstr "Payment settings"
+
+msgctxt "Languages::addons.payvector.merchant_pass"
+msgid "Merchant Password"
+msgstr "Merchant Password"
+
+msgctxt "Languages::addons.payvector.presharedkey"
+msgid "Pre Shared Key"
+msgstr "Pre Shared Key"
+
+msgctxt "Languages::addons.payvector.transaction_type"
+msgid "Transaction Type"
+msgstr "Transaction Type"
+
+msgctxt "Languages::addons.payvector.hash_method"
+msgid "Hash Method"
+msgstr "Hash Method"
+
+msgctxt "Languages::addons.payvector.result_delivery_method"
+msgid "Result Delivery Method"
+msgstr "Result Delivery Method"
+
+msgctxt "Languages::addons.payvector.capture_method"
+msgid "Capture Method"
+msgstr "Capture Method"
+
+msgctxt "Languages::addons.payvector.direct_api"
+msgid "Direct/API"
+msgstr "Direct/API"
+
+msgctxt "Languages::addons.payvector.hform"
+msgid "Hosted Payment Form"
+msgstr "Hosted Payment Form"
+
+msgctxt "Languages::addons.payvector.use_saved_card"
+msgid "Use saved"
+msgstr "Use saved"
+
+msgctxt "Languages::addons.payvector.enter_new_card_details"
+msgid "Enter new card details"
+msgstr "Enter new card details"
+
+msgctxt "Languages::addons.payvector.enter_new_card_details_on_secure_form"
+msgid "Enter new card details on our secure payment form"
+msgstr "Enter new card details on our secure payment form"
