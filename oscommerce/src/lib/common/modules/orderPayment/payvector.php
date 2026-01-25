@@ -95,13 +95,15 @@ class Payvector extends ModulePayment {
         ];
 
         
-        $saved_cards = $this->getSavedCards();
-        $cards_array = [['id' => 'new', 'text' => 'New Card']];
-        foreach ($saved_cards as $card) {
-            $cards_array[] = [
-                'id' => $card['id'], 
-                'text' => $card['card_type'] . ' ****' . $card['card_last_four']
-            ];
+        if (defined('MODULE_PAYMENT_PAYVECTOR_SHOW_SAVED_CARDS') && MODULE_PAYMENT_PAYVECTOR_SHOW_SAVED_CARDS == 'True') {
+            $saved_cards = $this->getSavedCards();
+            
+            foreach ($saved_cards as $card) {
+                $cards_array[] = [
+                    'id' => $card['id'], 
+                    'text' => $card['card_type'] . ' ****' . $card['card_last_four']
+                ];
+            }
         }
 
         
@@ -286,8 +288,9 @@ class Payvector extends ModulePayment {
         $processor->setPhoneNumber($order->customer['telephone']);
         
         
-        $returnURL = \Yii::$app->urlManager->createAbsoluteUrl(['callback/webhooks', 'set' => 'payment', 'module' => $this->code, 'order_id' => $order->order_id, 'action' => 'callback']);        
-        
+        $shop_url = \Yii::$app->urlManager->createAbsoluteUrl(['/']);
+        $url_ssl = (stripos($shop_url, 'https') === 0) ? 'https' : 'http';
+        $returnURL = \Yii::$app->urlManager->createAbsoluteUrl(['callback/webhooks', 'set' => 'payment', 'module' => $this->code, 'order_id' => $order->order_id, 'action' => 'callback'], $url_ssl);        
         
         $form_data = $processor->getHostedPaymentForm(
             $returnURL,
@@ -341,7 +344,7 @@ class Payvector extends ModulePayment {
             }
             
             if (!$hash_matches) {
-                tep_redirect(\Yii::$app->urlManager->createAbsoluteUrl(['checkout/failure', 'payment_error' => $this->code, 'error' => $validate_error_message]));
+                tep_redirect(\Yii::$app->urlManager->createAbsoluteUrl(['checkout/index', 'payment_error' => $this->code, 'error' => $validate_error_message]));
                 exit;
             }
             
@@ -362,8 +365,11 @@ class Payvector extends ModulePayment {
             
             if ($status_code == 0) {
                 
-                $this->transactionInfo['status'] = 2;                
-                $this->saveCrossReference($order_id, new \HostedPaymentFormFinalTransactionResult($transaction_result));                
+                $this->transactionInfo['status'] = 2;
+                
+                if (defined('MODULE_PAYMENT_PAYVECTOR_SHOW_SAVED_CARDS') && MODULE_PAYMENT_PAYVECTOR_SHOW_SAVED_CARDS == 'True') {
+                    $this->saveCrossReference($order_id, new \HostedPaymentFormFinalTransactionResult($transaction_result));                
+                }
                 
                 if (is_object($cart)) {
                     $cart->reset(true);
@@ -375,7 +381,7 @@ class Payvector extends ModulePayment {
                 
                 $this->transactionInfo['status'] = 5;
                 parent::processPaymentCancellation();
-                tep_redirect(\Yii::$app->urlManager->createAbsoluteUrl(['checkout/failure']));
+                tep_redirect(\Yii::$app->urlManager->createAbsoluteUrl(['checkout/index', 'payment_error' => $this->code, 'error' => 'Payment Failed']));
             }
             exit;
         }
@@ -398,7 +404,8 @@ class Payvector extends ModulePayment {
 
             
             $cross_reference = $transaction_result->getCrossReference();
-            $card_last_four = $transaction_result->getCardLastFour($_SESSION);;
+            $card_last_four = $transaction_result->getCardLastFour($_SESSION);            
+
             $card_type = $transaction_result->getCardType();            
             if (empty($card_last_four)) $card_last_four = $_SESSION['payvector_last4_cc_number'];
             if (!empty($card_last_four)) {
@@ -558,6 +565,23 @@ class Payvector extends ModulePayment {
             );
         }
         
+        // Cleanup sensitive data
+        $keys_to_remove = [
+            'payvector_saved_cc_cvv',
+            'payvector_new_cc_cvv', 
+            'payvector_cc_cvv',
+            'payvector_cc_owner',
+            'payvector_cc_number',
+            'payvector_cc_expires_month',
+            'payvector_cc_expires_year'
+        ];
+        
+        foreach ($keys_to_remove as $key) {
+             if ($this->manager->has($key)) {
+                 $this->manager->remove($key);
+             }
+        }
+        
         $this->_handleTransactionResult($result, $processor, $order);
     }
 
@@ -571,7 +595,9 @@ class Payvector extends ModulePayment {
              $this->transactionInfo['status'] = 2;              
              $this->transactionInfo['transaction_details'] = json_encode(['Result' => 'Success', 'CrossReference' => $result->getCrossReference()]);             
              
-             $this->saveCrossReference($order->order_id, $result);                        
+             if (defined('MODULE_PAYMENT_PAYVECTOR_SHOW_SAVED_CARDS') && MODULE_PAYMENT_PAYVECTOR_SHOW_SAVED_CARDS == 'True') {
+                 $this->saveCrossReference($order->order_id, $result);                        
+             }
              
              parent::processPaymentNotification(true);
              
@@ -696,6 +722,13 @@ class Payvector extends ModulePayment {
                 'sort_order' => '12',
                 'use_function' => '\\common\\helpers\\Zones::get_zone_class_title',
                 'set_function' => 'tep_cfg_pull_down_zone_classes(',
+            ),
+            'MODULE_PAYMENT_PAYVECTOR_SHOW_SAVED_CARDS' => array(
+                'title' => 'Saved Cards',
+                'value' => 'True',
+                'description' => 'Do you want to show saved cards?',
+                'sort_order' => '12',
+                'set_function' => 'tep_cfg_select_option(array(\'True\', \'False\'), ',
             ),
             'MODULE_PAYMENT_PAYVECTOR_SORT_ORDER' => array(
                 'title' => 'Sort order of display',
