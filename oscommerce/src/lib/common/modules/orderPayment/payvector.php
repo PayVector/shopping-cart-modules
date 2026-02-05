@@ -161,10 +161,15 @@ class Payvector extends ModulePayment {
         
         
         $saved_card_id = \Yii::$app->request->post('payvector_saved_card') ?: ($_POST['payvector_saved_card'] ?? null);
+        $paytype = 'save';
+        if ($saved_card_id == 'new') $paytype = 'new';
+        $this->manager->set('payvector_paytype', $paytype);
+        
+
         if (!empty($saved_card_id) && (string)$saved_card_id !== 'new') {
             $cvv = \Yii::$app->request->post('payvector_saved_cc_cvv') ?: ($_POST['payvector_saved_cc_cvv'] ?? null);
             if (empty($cvv) || strlen($cvv) < 3) {
-                tep_redirect(\Yii::$app->urlManager->createAbsoluteUrl(['checkout/index', 'payment_error' => $this->code, 'error' => 'CVV must be at least 3 characters']));
+                tep_redirect(\Yii::$app->urlManager->createAbsoluteUrl(['checkout/index', 'payment_error' => $this->code, 'paytype' => $paytype, 'error' => 'CVV must be at least 3 characters']));
             }
         } else {
             if ($this->mode == 'Direct API') {
@@ -172,13 +177,13 @@ class Payvector extends ModulePayment {
                   $owner = \Yii::$app->request->post('payvector_cc_owner') ?: ($_POST['payvector_cc_owner'] ?? null);
                  
                  if (empty($owner)) {
-                     tep_redirect(\Yii::$app->urlManager->createAbsoluteUrl(['checkout/index', 'payment_error' => $this->code, 'error' => 'Cardholder Name is required']));
+                     tep_redirect(\Yii::$app->urlManager->createAbsoluteUrl(['checkout/index', 'payment_error' => $this->code, 'paytype' => $paytype, 'error' => 'Cardholder Name is required']));
                  }
 
                  
                   $cc_curr = \Yii::$app->request->post('payvector_cc_number') ?: ($_POST['payvector_cc_number'] ?? null);
                  if (empty($cc_curr) || strlen($cc_curr) < 10) { // Basic length check
-                      tep_redirect(\Yii::$app->urlManager->createAbsoluteUrl(['checkout/index', 'payment_error' => $this->code, 'error' => 'Valid Card Number is required']));
+                      tep_redirect(\Yii::$app->urlManager->createAbsoluteUrl(['checkout/index', 'payment_error' => $this->code, 'paytype' => $paytype, 'error' => 'Valid Card Number is required']));
                  }
 
                   $cvv = \Yii::$app->request->post('payvector_new_cc_cvv') ?: ($_POST['payvector_new_cc_cvv'] ?? null);
@@ -188,7 +193,7 @@ class Payvector extends ModulePayment {
                  }
                  
                  if (empty($cvv) || strlen($cvv) < 3) {
-                    tep_redirect(\Yii::$app->urlManager->createAbsoluteUrl(['checkout/index', 'payment_error' => $this->code, 'error' => 'CVV must be at least 3 characters']));
+                    tep_redirect(\Yii::$app->urlManager->createAbsoluteUrl(['checkout/index', 'payment_error' => $this->code, 'paytype' => $paytype, 'error' => 'CVV must be at least 3 characters']));
                  }
             }
         }
@@ -344,7 +349,7 @@ class Payvector extends ModulePayment {
             }
             
             if (!$hash_matches) {
-                tep_redirect(\Yii::$app->urlManager->createAbsoluteUrl(['checkout/index', 'payment_error' => $this->code, 'error' => $validate_error_message]));
+                tep_redirect(\Yii::$app->urlManager->createAbsoluteUrl(['checkout/index', 'payment_error' => $this->code, 'paytype' => 'new','error' => $validate_error_message]));
                 exit;
             }
             
@@ -381,7 +386,7 @@ class Payvector extends ModulePayment {
                 
                 $this->transactionInfo['status'] = 5;
                 parent::processPaymentCancellation();
-                tep_redirect(\Yii::$app->urlManager->createAbsoluteUrl(['checkout/index', 'payment_error' => $this->code, 'error' => 'Payment Failed']));
+                tep_redirect(\Yii::$app->urlManager->createAbsoluteUrl(['checkout/index', 'payment_error' => $this->code, 'paytype' => 'new','error' => $message]));
             }
             exit;
         }
@@ -528,6 +533,7 @@ class Payvector extends ModulePayment {
         $processor->setCV2($cc_cvv);
 
         $result = null;
+        $paytype = 'save';
 
         if (!empty($saved_card_id) && $saved_card_id != 'new') {
             
@@ -548,7 +554,7 @@ class Payvector extends ModulePayment {
             }
 
         } else {
-            
+            $paytype = 'new';
             $cc_number = $this->get_payment_input('payvector_cc_number');
             $cc_expiry_month = $this->get_payment_input('payvector_cc_expires_month');
             $cc_expiry_year = $this->get_payment_input('payvector_cc_expires_year');                       
@@ -582,10 +588,11 @@ class Payvector extends ModulePayment {
              }
         }
         
-        $this->_handleTransactionResult($result, $processor, $order);
+        $this->_handleTransactionResult($result, $processor, $order, $paytype);
     }
 
-    public function _handleTransactionResult($result, $processor, $order) {
+    public function _handleTransactionResult($result, $processor, $order, $paytype = null) {
+        
         
         if ($result->transactionProcessed() && $result->transactionSuccessful()) {                          
              $this->transactionInfo['order_id'] = $order->order_id;             
@@ -622,8 +629,8 @@ class Payvector extends ModulePayment {
             exit;
             
         } else {             
-             $message = $result->getMessage();             
-             tep_redirect(\Yii::$app->urlManager->createAbsoluteUrl(['checkout/index', 'payment_error' => $this->code, 'error' => 'Payment Failed: ' . $message]));
+             $message = $result->getMessage();                                       
+             tep_redirect(\Yii::$app->urlManager->createAbsoluteUrl(['checkout/index', 'payment_error' => $this->code, 'paytype' => $paytype, 'error' => $message]));
         }
     }
 

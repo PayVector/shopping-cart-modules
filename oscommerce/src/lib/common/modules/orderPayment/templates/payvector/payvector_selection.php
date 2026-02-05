@@ -3,9 +3,51 @@
  * PayVector Selection Template
  */
 
+$requested_paytype = \Yii::$app->request->get('paytype');
+$selected_card_id = 'new';
+$has_saved_cards = false;
+$first_saved_card_id = null;
+
+foreach ($cards_array as $card) {
+    if ($card['id'] !== 'new') {
+        $has_saved_cards = true;
+        if ($first_saved_card_id === null) {
+            $first_saved_card_id = $card['id'];
+        }
+    }
+}
+
+
+if (!empty($requested_paytype)) {    
+    
+    $is_valid_choice = false;
+    foreach ($cards_array as $card) {
+        if ($card['id'] == $requested_paytype) {
+            $is_valid_choice = true;
+            break;
+        }
+    }
+    
+    if ($requested_paytype == 'new') $is_valid_choice = true;
+    
+    if ($is_valid_choice) {
+        $selected_card_id = $requested_paytype;
+    } else {    
+        $selected_card_id = $has_saved_cards ? $first_saved_card_id : 'new';
+    }
+    
+} elseif ($has_saved_cards) {
+    
+    $selected_card_id = $first_saved_card_id;
+} else {
+    
+    $selected_card_id = 'new';
+}
+
+
 $saved_card_options = '';
 foreach ($cards_array as $card) {
-    $selected = ($card['id'] == 'new') ? 'selected' : '';
+    $selected = ($card['id'] == $selected_card_id) ? 'selected' : '';
     $saved_card_options .= '<option value="' . $card['id'] . '" ' . $selected . '>' . $card['text'] . '</option>';
 }
 
@@ -43,7 +85,7 @@ $error_message = \Yii::$app->request->get('error');
         <?php if ($card['id'] == 'new') continue; ?>
         <div class="form-group" style="margin-bottom: 10px;">
             <label>
-                <input type="radio" name="payvector_saved_card" value="<?php echo $card['id']; ?>" class="payvector-card-selector">
+                <input type="radio" name="payvector_saved_card" value="<?php echo $card['id']; ?>" class="payvector-card-selector" <?php echo ($card['id'] == $selected_card_id ? 'checked' : ''); ?>>
                 <?php echo $card['text']; ?>
             </label>
         </div>        
@@ -55,20 +97,10 @@ $error_message = \Yii::$app->request->get('error');
         <input type="text" name="payvector_saved_cc_cvv" id="payvector_saved_cvv" size="4" maxlength="4" minlength="3" autocomplete="off" class="form-control" style="width: 80px;">
     </div>
 
-    <?php 
-    $has_saved_cards = false;
-    foreach ($cards_array as $card) {
-        if ($card['id'] !== 'new') {
-            $has_saved_cards = true;
-            break;
-        }
-    }
-    ?>
-
     
     <div class="form-group" style="margin-top: 15px;">
         <label>
-            <input type="radio" name="payvector_saved_card" value="new" class="payvector-card-selector" checked>
+            <input type="radio" name="payvector_saved_card" value="new" class="payvector-card-selector" <?php echo ('new' == $selected_card_id ? 'checked' : ''); ?>>
             New Card
         </label>
     </div>

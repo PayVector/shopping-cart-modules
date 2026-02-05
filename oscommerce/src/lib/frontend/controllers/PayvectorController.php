@@ -18,12 +18,13 @@ class PayvectorController extends Sceleton {
     public function actionThreeDs() {
         global $cart;
         $postData = \Yii::$app->request->post();
+        
 
         if (!empty($postData) && (isset($postData['cres']) || isset($postData['threeDSMethodData']) || isset($postData['PaRes']) || isset($postData['MD']))) {
             
             $payment_module = $this->getPaymentModule();
             if (!$payment_module) {
-                return $this->redirect(['checkout/index', 'payment_error' => 'payvector', 'error' => 'Payment module not found']);
+                return $this->redirect(['checkout/index', 'payment_error' => 'payvector', 'paytype' => 'new','error' => 'Payment module not found']);
             }
 
             $processor = new \TransactionProcessor();
@@ -42,12 +43,12 @@ class PayvectorController extends Sceleton {
             }
             
             if (empty($order_id)) {
-                return $this->redirect(['checkout/index', 'payment_error' => 'payvector', 'error' => 'Session expired during 3DS verification']);
+                return $this->redirect(['checkout/index', 'payment_error' => 'payvector', 'paytype' => 'new','error' => 'Session expired during 3DS verification']);
             }
             $order = new \common\classes\Order($order_id);
 
             if (!empty($cres)) {
-                
+                // 3DS v2 Step 3/4: ACS Challenge Response (CRes) received
                 
                 $finalCrossReference = \PaymentFormHelper::base64UrlDecode($threeDSSessionData);
                 $finalCrossReference = $finalCrossReference ? $finalCrossReference : $crossReference; //Fallback if decode fails or empty
@@ -63,7 +64,7 @@ class PayvectorController extends Sceleton {
                 $boProcessed = $tdsa->processTransaction($authenticationResult, $outputData);
                 
                 $finalResult = new \ThreeDSecureFinalTransactionResult($boProcessed, $tdsa, $authenticationResult, $outputData, $_SESSION);
-                $payment_module->_handleTransactionResult($finalResult, $processor, $order);
+                $payment_module->_handleTransactionResult($finalResult, $processor, $order, 'new');
                 
                 
                 if (is_object($cart)) {
@@ -100,7 +101,7 @@ class PayvectorController extends Sceleton {
                     ]);
                 } else {
                     $finalResult = new \ThreeDSecureFinalTransactionResult($boProcessed, $tdse, $authenticationResult, $outputData, $_SESSION);
-                    $payment_module->_handleTransactionResult($finalResult, $processor, $order);
+                    $payment_module->_handleTransactionResult($finalResult, $processor, $order, 'new');
                     
                     if (is_object($cart)) {
                         $cart->reset(true);
@@ -113,7 +114,7 @@ class PayvectorController extends Sceleton {
                 $paRes = $postData['PaRes'] ?? '';
                 
                 $result = $processor->check3DSecureResult($md, $paRes, $_SESSION);
-                $payment_module->_handleTransactionResult($result, $processor, $order);
+                $payment_module->_handleTransactionResult($result, $processor, $order, 'new');
                 
                 if (is_object($cart)) {
                     $cart->reset(true);
