@@ -367,8 +367,11 @@ class payvector {
             $tp->setCountryCode($this->getISOCountryCode($order->billing['country']['iso_code_2']));
             $tp->setEmailAddress($order->customer['email_address']);
             $tp->setPhoneNumber($order->customer['telephone']);
-            $tp->setIPAddress(zen_get_ip_address());
-            
+            $ipAddress = zen_get_ip_address();
+			if ($ipAddress != "" && $ipAddress != ".")
+			{
+				$tp->setIPAddress($ipAddress);
+			}
                         
             $callbackUrl = (defined('ENABLE_SSL') && ENABLE_SSL == 'true' ? HTTPS_SERVER . DIR_WS_HTTPS_CATALOG : HTTP_SERVER . DIR_WS_CATALOG) . 'ext/modules/payment/payvector/call_webhooks.php?zenid=' . zen_session_id();            
             $sessionHandler = $_SESSION;
@@ -437,8 +440,11 @@ class payvector {
       $tp->setCountryCode($this->getISOCountryCode($order->billing['country']['iso_code_2']));
       $tp->setEmailAddress($order->customer['email_address']);
       $tp->setPhoneNumber($order->customer['telephone']);
-      $tp->setIPAddress(zen_get_ip_address());
-      
+      $ipAddress = zen_get_ip_address();
+	  if ($ipAddress != "" && $ipAddress != ".")
+      {
+          $tp->setIPAddress($ipAddress);
+      }     
       
       $tp->setJavaEnabled(isset($cc_data['browser_java_enabled']) ? $cc_data['browser_java_enabled'] : 'false');
       $tp->setJavaScriptEnabled('true');
