@@ -385,7 +385,7 @@ class payvector {
             
             $formFields = $tp->getHostedPaymentForm(
                 $callbackUrl,
-                $callbackUrl, 
+                $callbackUrl,
                 $this->hpf_psk,
                 $this->hpf_hash,
                 $this->hpf_rdm,
@@ -522,8 +522,7 @@ class payvector {
           if ($saved_card_id == 'new' && isset($_SESSION['customer_id']) && (int)$_SESSION['customer_id'] > 0) {
               $xref = $result->getCrossReference();
               $last4 = isset($_SESSION['payvector_saved_last4']) ? $_SESSION['payvector_saved_last4'] : '';
-              $card_type = 'Card'; 
-              
+              $card_type = $result->getCardType();
               $this->updateCrossReference($_SESSION['customer_id'], $xref, $card_type, $last4);
           }
           
@@ -649,10 +648,10 @@ class payvector {
                   $this->hpf_handler_url,
                   $transaction_result,
                   $validate_error_message
-              );
-          }
+              );                               
+          }          
           
-          if (!$hash_matches) {
+          if (!$hash_matches) {            
               $messageStack->add_session('checkout_payment', MODULE_PAYMENT_PAYVECTOR_TEXT_DECLINED . ' Hash Verification Failed: ' . $validate_error_message, 'error');
               zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, 'pvmode=new', 'SSL', true, false));
               exit;
