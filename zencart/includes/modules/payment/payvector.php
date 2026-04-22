@@ -3,7 +3,7 @@
  * PayVector Payment Module for Zen Cart
  *
  * @package paymentMethod
- * @copyright Copyright 2025 PayVector
+ * @copyright Copyright 2026 PayVector
  * @license http://www.zen-cart.com/license/2_0.txt GNU Public License V2.0
  */
 
@@ -115,6 +115,12 @@ class payvector {
             $selected_card = (string)$session_card;
         }
         
+        if (isset($_GET['pvmode'])) {
+            $selected_card = (string)$_GET['pvmode'];
+            if ($selected_card == 'saved' && count($saved_cards) > 0) {
+                 $selected_card = (string)$saved_cards[0]['id'];
+            }
+        }
         
         if (count($saved_cards) > 0) {
             foreach ($saved_cards as $card) {
@@ -123,10 +129,11 @@ class payvector {
                 $is_checked = ($selected_card === (string)$card['id']) ? 'checked="checked"' : '';
                 $radio_field = '<input type="radio" name="payvector_saved_card" value="' . $card['id'] . '" class="payvector-card-selector" style="margin-left: 10px;" ' . $is_checked . $onFocus . ' />';
                 
+                $text_part2 = ' ending in ' . $card['last_four'] . ' (' . $card['card_type'] . ')';                
                 
+                $card_info_html =  $text_part2;
                 
-                $text_part2 = 'ending in ' . $card['last_four'] . ' (' . $card['card_type'] . ')';
-                $fields_array[] = array('title' => $radio_field . $text_part1.' <span class="payvector-saved-card" style="margin-left: 5px; ">' .  '<div style="margin-top: 5px; margin-left: 20px;width:150px;">' . $text_part2 . '</div></span>',
+                $fields_array[] = array('title' =>  ' <span style="font-weight: bold; white-space: nowrap;">'. $radio_field. $text_part1 .  $card_info_html.'</span>' ,
                                       'field' => '');
                 
                 $cvv_display = ($selected_card === (string)$card['id']) ? '' : 'display:none;';
@@ -179,11 +186,6 @@ class payvector {
                 // Toggle New Card Fields
                 newCardFields.forEach(function(el) {
                     el.style.display = isNew ? "block" : "none";
-                });
-                
-                // Toggle Saved Card Options
-                savedCardRadios.forEach(function(el) {
-                    el.style.display = isNew ? "none" : "block";
                 });
                 
                 // Toggle Saved CVV Fields
@@ -316,12 +318,16 @@ class payvector {
                 
                 return false;
             } else {
+                 $cc_data = isset($_SESSION['payvector_cc_data']) ? $_SESSION['payvector_cc_data'] : array();
+                 $saved_card_id = isset($cc_data['saved_card']) ? $cc_data['saved_card'] : 'new';
                  $messageStack->add_session('checkout_payment', MODULE_PAYMENT_PAYVECTOR_TEXT_DECLINED . ' ' . $result->getMessage(), 'error');
-                 zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, '', 'SSL', true, false));
+                 zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, 'pvmode=' . ($saved_card_id == 'new' ? 'new' : 'saved'), 'SSL', true, false));
             }
         } catch (Exception $e) {
+             $cc_data = isset($_SESSION['payvector_cc_data']) ? $_SESSION['payvector_cc_data'] : array();
+             $saved_card_id = isset($cc_data['saved_card']) ? $cc_data['saved_card'] : 'new';
              $messageStack->add_session('checkout_payment', 'Error processing 3DS result: ' . $e->getMessage(), 'error');
-             zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, '', 'SSL', true, false));
+             zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, 'pvmode=' . ($saved_card_id == 'new' ? 'new' : 'saved'), 'SSL', true, false));
         }
         return;
     }
@@ -372,14 +378,14 @@ class payvector {
 			{
 				$tp->setIPAddress($ipAddress);
 			}
-                        
+            
             $callbackUrl = (defined('ENABLE_SSL') && ENABLE_SSL == 'true' ? HTTPS_SERVER . DIR_WS_HTTPS_CATALOG : HTTP_SERVER . DIR_WS_CATALOG) . 'ext/modules/payment/payvector/call_webhooks.php?zenid=' . zen_session_id();            
             $sessionHandler = $_SESSION;
             
             
             $formFields = $tp->getHostedPaymentForm(
                 $callbackUrl,
-                '', 
+                $callbackUrl, 
                 $this->hpf_psk,
                 $this->hpf_hash,
                 $this->hpf_rdm,
@@ -474,7 +480,7 @@ class payvector {
               );
           } else {
               $messageStack->add_session('checkout_payment', MODULE_PAYMENT_PAYVECTOR_TEXT_DECLINED . ' Invalid Saved Card.', 'error');
-              zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, '', 'SSL', true, false));
+              zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, 'pvmode=' . ($saved_card_id == 'new' ? 'new' : 'saved'), 'SSL', true, false));
               return;
           }
       } else {
@@ -502,9 +508,6 @@ class payvector {
           if (isset($_SESSION['payvector_cc_data']['cc_number'])) {
               $_SESSION['payvector_saved_last4'] = substr(str_replace(' ', '', $_SESSION['payvector_cc_data']['cc_number']), -4);
           }
-          if (isset($_SESSION['payvector_cc_data'])) {
-              unset($_SESSION['payvector_cc_data']);
-          }
       }
       
       
@@ -526,6 +529,9 @@ class payvector {
           
           if (isset($_SESSION['payvector_saved_last4'])) {
               unset($_SESSION['payvector_saved_last4']);
+          }
+          if (isset($_SESSION['payvector_cc_data'])) {
+              unset($_SESSION['payvector_cc_data']);
           }
           $order_id = $result->getOrderID($_SESSION);
           $clean_order_id = current(explode('-', $order_id));
@@ -581,7 +587,7 @@ class payvector {
           
           $message = $result->getMessage();
           $messageStack->add_session('checkout_payment', MODULE_PAYMENT_PAYVECTOR_TEXT_DECLINED . ' ' . $message, 'error');
-          zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, '', 'SSL', true, false));
+          zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, 'pvmode=' . ($saved_card_id == 'new' ? 'new' : 'saved'), 'SSL', true, false));
       }
   }
 
@@ -648,7 +654,7 @@ class payvector {
           
           if (!$hash_matches) {
               $messageStack->add_session('checkout_payment', MODULE_PAYMENT_PAYVECTOR_TEXT_DECLINED . ' Hash Verification Failed: ' . $validate_error_message, 'error');
-              zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, '', 'SSL', true, false));
+              zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, 'pvmode=new', 'SSL', true, false));
               exit;
           }
           
@@ -680,7 +686,7 @@ class payvector {
               zen_redirect($unrewritten_success_url);
           } else {
               $messageStack->add_session('checkout_payment', MODULE_PAYMENT_PAYVECTOR_TEXT_DECLINED . ' ' . $message, 'error');
-              zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, '', 'SSL', true, false));
+              zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, 'pvmode=new', 'SSL', true, false));
           }
           exit;
       
@@ -735,12 +741,12 @@ class payvector {
   function install() {
     global $db;
     $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Enable PayVector Module', 'MODULE_PAYMENT_PAYVECTOR_STATUS', 'True', 'Do you want to accept PayVector payments?', '6', '1', 'zen_cfg_select_option(array(\'True\', \'False\'), ', now())");
-    $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Payment Mode', 'MODULE_PAYMENT_PAYVECTOR_MODE', 'Direct API', 'Select the payment mode', '6', '2', 'zen_cfg_select_option(array(\'Direct API\', \'Hosted Payment Form\'), ', now())");
+    $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Payment Mode', 'MODULE_PAYMENT_PAYVECTOR_MODE', 'Hosted Payment Form', 'Select the payment mode', '6', '2', 'zen_cfg_select_option(array(\'Direct API\', \'Hosted Payment Form\'), ', now())");
     $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Merchant ID', 'MODULE_PAYMENT_PAYVECTOR_MERCHANT_ID', '', 'Your PayVector Merchant ID', '6', '3', now())");
     $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Password', 'MODULE_PAYMENT_PAYVECTOR_PASSWORD', '', 'Your PayVector Password', '6', '4', now())");
-    $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Pre-Shared Key', 'MODULE_PAYMENT_PAYVECTOR_SECRET_KEY', '', 'Your PayVector Pre-Shared Key', '6', '5', now())");
-    $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Hash Method', 'MODULE_PAYMENT_PAYVECTOR_HASH_METHOD', 'SHA1', 'Hash Method', '6', '6', 'zen_cfg_select_option(array(\'SHA1\', \'MD5\', \'HMACSHA1\', \'HMACMD5\'), ', now())");
-    $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Result Delivery Method', 'MODULE_PAYMENT_PAYVECTOR_HPF_RDM', 'POST', 'Result Delivery Method', '6', '7', 'zen_cfg_select_option(array(\'POST\', \'SERVER\', \'SERVER_PULL\'), ', now())");
+    $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Pre-Shared Key', 'MODULE_PAYMENT_PAYVECTOR_SECRET_KEY', '', 'Your PayVector Pre-Shared Key (Hosted Payment Form only)', '6', '5', now())");
+    $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Hash Method', 'MODULE_PAYMENT_PAYVECTOR_HASH_METHOD', 'SHA1', 'Hash Method (Hosted Payment Form only)', '6', '6', 'zen_cfg_select_option(array(\'SHA1\', \'MD5\', \'HMACSHA1\', \'HMACMD5\'), ', now())");
+    $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Result Delivery Method', 'MODULE_PAYMENT_PAYVECTOR_HPF_RDM', 'POST', 'Result Delivery Method (Hosted Payment Form only)', '6', '7', 'zen_cfg_select_option(array(\'POST\', \'SERVER\', \'SERVER_PULL\'), ', now())");
     $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Saved Cards', 'MODULE_PAYMENT_PAYVECTOR_SHOW_SAVED_CARDS', 'True', 'Do you want to show saved cards?', '6', '8', 'zen_cfg_select_option(array(\'True\', \'False\'), ', now())");
     $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort Order of Display', 'MODULE_PAYMENT_PAYVECTOR_SORT_ORDER', '0', 'Sort order of display. Lowest is displayed first.', '6', '0', now())");
     $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, set_function, date_added) values ('Payment Zone', 'MODULE_PAYMENT_PAYVECTOR_ZONE', '0', 'If a zone is selected, only enable this payment method for that zone.', '6', '2', 'zen_get_zone_class_title', 'zen_cfg_pull_down_zone_classes(', now())");
