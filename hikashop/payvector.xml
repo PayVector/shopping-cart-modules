@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="4.0" type="plugin" group="hikashoppayment" method="upgrade">
+	<name>PayVector Payment Plugin</name>
+	<author>PayVector</author>
+	<creationDate>June 2026</creationDate>
+	<copyright>Copyright (C) 2026. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later</license>	
+	<authorUrl>www.payvector.co.uk</authorUrl>
+	<version>1.0.1</version>
+	<description>PayVector payment plugin for HikaShop.</description>
+	<files>
+		<filename plugin="payvector">payvector.php</filename>
+		<filename>payvector_end.php</filename>
+		<filename>payvector_3ds.php</filename>
+		<folder>payvector</folder>
+	</files>
+	<config>
+		<fields name="params">
+			<fieldset name="basic" addfieldpath="/administrator/components/com_hikashop/helpers/fields">
+				<field name="mode" type="list" default="Hosted Payment Form" label="Payment Mode" description="Select the payment mode">
+					<option value="Direct API">Direct API</option>
+					<option value="Hosted Payment Form">Hosted Payment Form</option>
+				</field>
+				<field name="merchant_id" type="text" default="" label="Merchant ID" description="Your PayVector Merchant ID" />
+				<field name="password" type="password" default="" label="Password" description="Your PayVector Password" />
+				<field name="pre_shared_key" type="password" default="" label="Pre-Shared Key" description="Your PayVector Pre-Shared Key" />
+				<field name="hash_method" type="list" default="SHA1" label="Hash Method" description="Hash Method">
+					<option value="SHA1">SHA1</option>
+					<option value="MD5">MD5</option>
+					<option value="HMACSHA1">HMACSHA1</option>
+					<option value="HMACMD5">HMACMD5</option>
+				</field>
+				<field name="result_delivery_method" type="list" default="POST" label="Result Delivery Method" description="Result Delivery Method">
+					<option value="POST">POST</option>					
+					<option value="SERVER_PULL">SERVER_PULL</option>
+				</field>
+				<field name="show_saved_cards" type="radio" default="1" label="Show Saved Cards" description="Do you want to show saved cards?">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="order_status" type="hikashoporderstatus" default="created" label="Pending Status" description="The status given to an order when created but payment is not fully verified yet." />
+				<field name="verified_status" type="hikashoporderstatus" default="confirmed" label="Verified Status" description="The status given to an order when payment is successful." />
+				<field name="invalid_status" type="hikashoporderstatus" default="cancelled" label="Invalid Status" description="The status given to an order when payment fails." />
+			</fieldset>
+		</fields>
+	</config>
+</extension>
