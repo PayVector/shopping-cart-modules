@@ -2,7 +2,7 @@
 /**
  * Plugin Name: PayVector WooCommerce Integration
  * Description: Allows taking payments through the PayVector Payment Gateway with a WooCommerce installation.
- * Version: 2.0.10
+ * Version: 2.0.11
  * Author: PayVector
  * Author URI: http://www.payvector.co.uk
  * License: GPLv2 or later
@@ -165,17 +165,17 @@ function payvector_init()
 		 */
 		private $cardLastFourKey = '_card_last_four';
 		/**
-		 * Key used to store the cross reference with update_post_meta()
+		 * Key used to store the cross reference with WC_Order meta data
 		 * @var string
 		 */
 		private $subscriptionCrossReferenceKey = "_subscription_cross_reference";
 		/**
-		 * Key used to store the cross type with update_post_meta()
+		 * Key used to store the card type with WC_Order meta data
 		 * @var string
 		 */
 		private $subscriptionCardTypeKey = '_subscription_card_type';
 		/**
-		 * Key used to store the last four digits of the card number with update_post_meta()
+		 * Key used to store the last four digits of the card number with WC_Order meta data
 		 * @var string
 		 */
 		private $subscriptionCardLastFourKey = '_subscription_card_last_four';
@@ -539,7 +539,7 @@ function payvector_init()
 		public function process_payment($orderID)
 		{
 			
-			$this->order = new WC_Order($orderID);
+			$this->order = wc_get_order($orderID);
 			$data = $this->getCardData($_POST['payment_type'] === SaleType::CrossReferenceSale);
 								
 			
@@ -555,7 +555,7 @@ function payvector_init()
 			$isoCountryCode = null;
 			$currencyShort = $this->order->get_order_currency();
 			$cartTotal = $this->order->get_total();
-			$countryShort = $this->order->billing_country;
+			$countryShort = $this->order->get_billing_country();
 			$iclISOCurrencyList = ISOHelper::getISOCurrencyList();
 			if (!empty($currencyShort) && $iclISOCurrencyList->getISOCurrency($currencyShort, $icISOCurrency)) {
 				/** @var $icISOCurrency ISOCurrency */
@@ -579,15 +579,15 @@ function payvector_init()
 			$transactionProcessor->setAmount($cartTotal);
 			$transactionProcessor->setOrderID($orderID);
 			$transactionProcessor->setOrderDescription("WooCommerce Order number " . $orderID);
-			$transactionProcessor->setCustomerName($this->order->billing_first_name . " " . $this->order->billing_last_name);
-			$transactionProcessor->setAddress1($this->order->billing_address_1);
-			$transactionProcessor->setAddress2($this->order->billing_address_2);
-			$transactionProcessor->setCity($this->order->billing_city);
-			$transactionProcessor->setState($this->order->billing_state);
-			$transactionProcessor->setPostcode($this->order->billing_postcode);
+			$transactionProcessor->setCustomerName($this->order->get_billing_first_name() . " " . $this->order->get_billing_last_name());
+			$transactionProcessor->setAddress1($this->order->get_billing_address_1());
+			$transactionProcessor->setAddress2($this->order->get_billing_address_2());
+			$transactionProcessor->setCity($this->order->get_billing_city());
+			$transactionProcessor->setState($this->order->get_billing_state());
+			$transactionProcessor->setPostcode($this->order->get_billing_postcode());
 			$transactionProcessor->setCountryCode($isoCountryCode);
-			$transactionProcessor->setEmailAddress($this->order->billing_email);
-			$transactionProcessor->setPhoneNumber($this->order->billing_phone);
+			$transactionProcessor->setEmailAddress($this->order->get_billing_email());
+			$transactionProcessor->setPhoneNumber($this->order->get_billing_phone());
 			$transactionProcessor->setIPAddress($_SERVER['REMOTE_ADDR']);
 			$transactionProcessor->setTransactionType($this->transactionType);
 			
@@ -709,12 +709,12 @@ function payvector_init()
 				$this->getEntryPointList(),
 				$order->get_order_currency(),
 				$amountToCharge,
-				$order->id,
-				"WooCommerce Order number " . $order->id
+				$order->get_id(),
+				"WooCommerce Order number " . $order->get_id()
 			);
 			$transactionProcessor = $this->getSubscriptionProcessor($transactionProcessor, $amountToCharge);
 			//get the cross reference from the database and run the transaction
-			$crossReference = get_post_meta($order->id, $this->subscriptionCrossReferenceKey, true);
+			$crossReference = $order->get_meta($this->subscriptionCrossReferenceKey, true);
 			if (!empty($crossReference)) {
 				$finalTransactionResult = $transactionProcessor->doCrossReferenceTransaction(
 					$crossReference,
@@ -729,7 +729,8 @@ function payvector_init()
 			if ($finalTransactionResult->transactionProcessed() && $finalTransactionResult->transactionSuccessful()) {
 				//Save cross reference
 				$crossReference = $finalTransactionResult->getCrossReference();
-				update_post_meta($order->id, $this->subscriptionCrossReferenceKey, $crossReference);
+				$order->update_meta_data($this->subscriptionCrossReferenceKey, $crossReference);
+				$order->save();
 				WC_Subscriptions_Manager::process_subscription_payments_on_order($order, $productID);
 			} else {
 				wc_add_notice($finalTransactionResult->getErrorMessage(), "error");
@@ -768,7 +769,11 @@ function payvector_init()
 		//TODO look over
 		public function subscriptionMethodChanged($originalOrder, $newRenewalOrder)
 		{
-			update_post_meta($originalOrder->id, $this->subscriptionCrossReferenceKey, get_post_meta($newRenewalOrder->id, $this->subscriptionCrossReferenceKey, true));
+			$originalOrder->update_meta_data(
+				$this->subscriptionCrossReferenceKey,
+				$newRenewalOrder->get_meta($this->subscriptionCrossReferenceKey, true)
+			);
+			$originalOrder->save();
 		}
 
 		private function create3d()
@@ -1034,7 +1039,7 @@ function payvector_init()
 			if (empty($orderID)) $orderID = $_GET['orderID'];
 			
 			if (!isset($this->order)) {
-				$this->order = new WC_Order($orderID );			
+				$this->order = wc_get_order($orderID);			
 			}
 			
 			if ($finalTransactionResult->transactionProcessed() && $finalTransactionResult->transactionSuccessful()) {
@@ -1052,11 +1057,12 @@ function payvector_init()
 				
 				
 				if ($isRecurringInitial) {
-					update_post_meta($finalTransactionResult->getOrderID($this->sessionHandler), $this->subscriptionCrossReferenceKey, $crossReference);
-					update_post_meta($finalTransactionResult->getOrderID($this->sessionHandler), $this->subscriptionCardTypeKey, $cardType);
+					$this->order->update_meta_data($this->subscriptionCrossReferenceKey, $crossReference);
+					$this->order->update_meta_data($this->subscriptionCardTypeKey, $cardType);
 					if (isset($cardLastFour)) {
-						update_post_meta($finalTransactionResult->getOrderID($this->sessionHandler), $this->subscriptionCardLastFourKey, $cardLastFour);
+						$this->order->update_meta_data($this->subscriptionCardLastFourKey, $cardLastFour);
 					}
+					$this->order->save();
 				
 					} else if (isset($userID) && isset($crossReference)) {				
 					//$userID = get_current_user_id();
@@ -1109,7 +1115,7 @@ function payvector_init()
 
 					$redirectUrl= add_query_arg( [						
 						'action' => 'create3D',
-						'orderID' => $this->order->id,
+						'orderID' => $this->order->get_id(),
 						'isRecurringInitial' => $isRecurringInitial,
 					], $this->notifyURL );					
 
