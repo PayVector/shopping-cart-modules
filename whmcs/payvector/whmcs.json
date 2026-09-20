@@ -1,0 +1,23 @@
+{
+  "schema": "1.0",
+  "type": "whmcs-gateways",
+  "name": "payvector",
+  "license": "proprietary",
+  "category": "payments",
+  "description": {
+    "name": "Payvector",
+    "tagline": "Credit card payment processing gateway integration for Payvector"
+  },
+  "logo": {
+    "filename": "logo.png"
+  },
+  "support": {
+    "docs_url": "https://www.payvector.co.uk"
+  },
+  "authors": [
+    {
+      "name": "Payvector",
+      "homepage": "https://www.payvector.co.uk"
+    }
+  ]
+}
