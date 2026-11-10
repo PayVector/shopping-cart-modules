@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">    
+    <record id="payment_method_payvector" model="payment.method">
+        <field name="name">PayVector</field>
+        <field name="code">payvector</field>
+        <field name="sequence">10</field>
+        <field name="provider_id" ref="payment_payvector.payment_provider_payvector"/>
+        <field name="image" type="bytes" file="payment_payvector/static/description/icon.png"/>
+        <field name="active" eval="True"/>
+    </record>
+
+</odoo>
+
+
+

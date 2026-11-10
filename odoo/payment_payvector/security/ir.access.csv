@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,for_read,for_write,for_create,for_unlink
+access_payvector_saved_card_user,payvector.saved.card.user,model_payvector_saved_card,base.group_user,1,1,1,1

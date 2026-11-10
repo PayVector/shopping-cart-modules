@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         PayVector: Hosted Payment Form — Redirect Template
+         ============================================================ -->
+    <template id="redirect_form">
+        <form t-att-action="api_url" method="post">
+            <t t-foreach="[
+                'HashDigest','MerchantID','Amount','CurrencyCode',
+                'EchoAVSCheckResult','EchoCV2CheckResult',
+                'EchoThreeDSecureAuthenticationCheckResult','EchoCardType',
+                'EchoCardNumberFirstSix','EchoCardNumberLastFour',
+                'OrderID','TransactionType','TransactionDateTime',
+                'CallbackURL','OrderDescription','CustomerName',
+                'Address1','Address2','Address3','Address4',
+                'City','State','Postcode','CountryCode',
+                'EmailAddress','PhoneNumber',
+                'CV2Mandatory','Address1Mandatory','CityMandatory',
+                'PostCodeMandatory','StateMandatory','CountryMandatory',
+                'ResultDeliveryMethod','ServerResultURL',
+                'PaymentFormDisplaysResult',
+                'ServerResultURLCookieVariables',
+                'ServerResultURLFormVariables',
+                'ServerResultURLQueryStringVariables'
+            ]" t-as="field_name">
+                <input type="hidden"
+                       t-att-name="field_name"
+                       t-att-value="(values or {}).get(field_name, '')"/>
+            </t>
+        </form>
+    </template>
+
+    <!-- ============================================================
+         PayVector: Main Payment Form
+         ============================================================ -->
+    <template id="payvector_direct_form" name="PayVector Payment Form">
+        <!-- Resolve provider_sudo from provider_id — always browse fresh to ensure the full model is loaded -->
+        <t t-set="provider_sudo" t-value="env['payment.provider'].sudo().browse(provider_id)"/>
+        <!-- Fetch all form values from the provider -->
+        <t t-set="pv" t-value="provider_sudo._payvector_get_inline_form_values(partner_id if partner_id else None)"/>
+        <t t-set="payvector_mode" t-value="pv.get('payvector_mode', 'direct')"/>
+        <t t-set="has_saved_card" t-value="pv.get('has_saved_card', False)"/>
+        <t t-set="saved_card_last_four" t-value="pv.get('saved_card_last_four', '')"/>
+        <t t-set="saved_card_type" t-value="pv.get('saved_card_type', '')"/>
+        <t t-set="partner_name" t-value="pv.get('partner_name', '')"/>
+
+        <!-- Container Card -->
+        <div id="payvector-direct-container"
+             t-att-data-payvector-mode="payvector_mode"
+             t-att-data-has-saved-card="'1' if has_saved_card and saved_card_last_four else '0'"
+             t-att-data-saved-card-last-four="saved_card_last_four or ''"
+             t-att-data-saved-card-type="saved_card_type or ''"
+             style="text-align: left; width: 100%; max-width: 600px; margin: 20px auto; padding: 25px; border: 1px solid #e0e0e0; border-radius: 8px; background: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+
+            <!-- PayVector Logo -->
+            <div class="logo text-center mb-3" style="margin-bottom: 20px; text-align: center;">
+                <img src="/payment_payvector/static/description/icon.png" alt="PayVector Logo" style="max-height: 50px;"/>
+            </div>
+
+            <h4 style="margin: 0 0 20px 0; color: #333333; font-weight: 600; text-align: center;">Pay with Credit Card</h4>
+
+            <div id="payvector_direct_form"
+                 class="o_payvector_form">
+
+                <input type="hidden" name="reference" value=""/>
+                <input type="hidden" name="provider_id" t-att-value="provider_sudo.id"/>
+
+                <!-- Browser 3DS v2 data (populated by JavaScript) -->
+                <input type="hidden" name="browser_java_enabled" id="pv_browser_java_enabled" value=""/>
+                <input type="hidden" name="browser_language" id="pv_browser_language" value=""/>
+                <input type="hidden" name="browser_color_depth" id="pv_browser_color_depth" value=""/>
+                <input type="hidden" name="browser_screen_height" id="pv_browser_screen_height" value=""/>
+                <input type="hidden" name="browser_screen_width" id="pv_browser_screen_width" value=""/>
+                <input type="hidden" name="browser_tz" id="pv_browser_tz" value=""/>
+
+                <!-- Saved Card Option — only rendered if saved card exists -->
+                <div id="payvector-saved-card-section"
+                     t-att-style="'display: block;' if has_saved_card and saved_card_last_four else 'display: none;'">
+                    <!-- Option 1: Saved Card -->
+                    <div style="margin-bottom: 15px;">
+                        <label style="font-weight: normal; cursor: pointer; display: block;">
+                            <input type="radio" name="payvector_saved_card" value="saved" class="payvector-card-selector me-2"
+                                   t-att-checked="'checked' if has_saved_card and saved_card_last_four else None"
+                                   style="margin-right: 10px;"/>
+                            <span id="payvector-saved-card-label"
+                                  t-esc="'Use saved card ending in %s%s' % (saved_card_last_four, ' (' + saved_card_type + ')' if saved_card_type else '') if has_saved_card and saved_card_last_four else 'Use saved card'"/>
+                        </label>
+                        <div id="payvector-saved-cvv"
+                             t-att-style="'margin-top: 10px; margin-left: 25px; display: block;' if has_saved_card and saved_card_last_four else 'margin-top: 10px; margin-left: 25px; display: none;'">
+                            <label class="form-label text-muted mb-1 me-2" style="font-weight: normal;">CVV</label>
+                            <input type="text" name="payvector_saved_cc_cvv" size="4" maxlength="4" placeholder="•••" class="form-control input-sm d-inline-block" style="width: 80px; display: inline-block; margin-left: 10px;"/>
+                        </div>
+                    </div>
+
+                    <!-- Option 2: New Card -->
+                    <div style="margin-bottom: 15px;">
+                        <label style="font-weight: normal; cursor: pointer; display: block;">
+                            <input type="radio" name="payvector_saved_card" value="new" class="payvector-card-selector me-2"
+                                   t-att-checked="'checked' if not (has_saved_card and saved_card_last_four) else None"
+                                   style="margin-right: 10px;"/>
+                            <span t-if="payvector_mode == 'hosted'">Redirect to Payment Form (New Card)</span>
+                            <span t-else="">New Card</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Fallback input when no saved card exists -->
+                <input t-if="not (has_saved_card and saved_card_last_four)" id="payvector-no-saved-card-input" type="hidden" name="payvector_saved_card" value="new"/>
+
+                <!-- Hosted Mode Explanation -->
+                <div t-if="payvector_mode == 'hosted'" id="payvector-hosted-redirect-msg"
+                     t-att-style="'display: none; text-align: center; margin-bottom: 20px;' if has_saved_card and saved_card_last_four else 'display: block; text-align: center; margin-bottom: 20px;'">
+                    <p style="color: #666666; font-size: 14px; line-height: 1.5;">Please click the button below to be securely redirected to the Payvector payment processor to complete your payment.</p>
+                </div>
+
+                <!-- New Card Input Fields (Direct Mode Only) -->
+                <div t-if="payvector_mode == 'direct'" id="payvector-new-card-fields"
+                     t-att-style="'padding-left: 25px; display: none;' if has_saved_card and saved_card_last_four else 'padding-left: 25px; display: block;'">
+                    <!-- Credit Card Owner -->
+                    <div class="mb-3" style="margin-bottom: 15px;">
+                        <label for="cc_holder_name" class="form-label" style="display: block; margin-bottom: 5px; color: #555;">Credit Card Owner</label>
+                        <input type="text" name="cc_holder_name" id="cc_holder_name"
+                               class="form-control" style="width: 100%; max-width: 350px;"
+                               placeholder="Name on card"
+                               t-att-value="partner_name or ''"/>
+                    </div>
+
+                    <!-- Credit Card Number -->
+                    <div class="mb-3" style="margin-bottom: 15px;">
+                        <label for="cc_number" class="form-label" style="display: block; margin-bottom: 5px; color: #555;">Credit Card Number</label>
+                        <input type="text" name="cc_number" id="cc_number"
+                               class="form-control" style="width: 100%; max-width: 350px;"
+                               autocomplete="cc-number"
+                               placeholder="•••• •••• •••• ••••"
+                               maxlength="19"/>
+                    </div>
+
+                    <!-- Expiry Date -->
+                    <div class="mb-3" style="margin-bottom: 15px;">
+                        <label class="form-label" style="display: block; margin-bottom: 5px; color: #555;">Expiry Date</label>
+                        <div class="d-flex gap-2 align-items-center" style="display: flex; gap: 10px; align-items: center;">
+                            <select name="cc_expiry_month" class="form-select form-control" style="width: auto;">
+                                <option value="">MM</option>
+                                <option value="01">01</option>
+                                <option value="02">02</option>
+                                <option value="03">03</option>
+                                <option value="04">04</option>
+                                <option value="05">05</option>
+                                <option value="06">06</option>
+                                <option value="07">07</option>
+                                <option value="08">08</option>
+                                <option value="09">09</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                            </select>
+                            <span>/</span>
+                            <select name="cc_expiry_year" id="cc_expiry_year" class="form-select form-control" style="width: auto;">
+                                <option value="">YY</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- CVV -->
+                    <div class="mb-3" style="margin-bottom: 15px;">
+                        <label for="cc_cvc" class="form-label" style="display: block; margin-bottom: 5px; color: #555;">CVV</label>
+                        <input type="text" name="cc_cvc" id="cc_cvc"
+                               class="form-control"
+                               autocomplete="cc-csc"
+                               placeholder="•••"
+                               maxlength="4" size="4"
+                               style="width: 80px;"/>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Script for year dropdown & browser 3DS data -->
+        <script type="text/javascript">
+            (function() {
+                /* ── Year dropdown ── */
+                function initYearDropdown() {
+                    var yearSelect = document.getElementById('cc_expiry_year') ||
+                                    document.querySelector('select[name="cc_expiry_year"]');
+                    if (yearSelect &amp;&amp; yearSelect.options.length &lt;= 1) {
+                        var currentYear = new Date().getFullYear();
+                        for (var y = 0; y &lt; 15; y++) {
+                            var yr = currentYear + y;
+                            var opt = document.createElement('option');
+                            opt.value = String(yr).slice(-2);
+                            opt.textContent = String(yr);
+                            yearSelect.appendChild(opt);
+                        }
+                    }
+                }
+
+                /* ── Read saved-card data from backend ── */
+                function initSavedCardUI() {
+                    var container = document.getElementById('payvector-direct-container');
+                    if (!container) return;
+
+                    var hasSavedCard  = container.getAttribute('data-has-saved-card') === '1';
+                    var lastFour      = container.getAttribute('data-saved-card-last-four') || '';
+                    var cardType      = container.getAttribute('data-saved-card-type')  || '';
+
+                    var savedSection  = document.getElementById('payvector-saved-card-section');
+                    var noCardInput   = document.getElementById('payvector-no-saved-card-input');
+                    var newCardFields = document.getElementById('payvector-new-card-fields');
+                    var hostedMsg     = document.getElementById('payvector-hosted-redirect-msg');
+
+                    if (hasSavedCard &amp;&amp; lastFour) {
+                        var label = document.getElementById('payvector-saved-card-label');
+                        if (label) {
+                            if (cardType) {
+                                label.textContent = 'Use saved card ending in ' + lastFour + ' (' + cardType + ')';
+                            } else {
+                                label.textContent = 'Use saved card ending in ' + lastFour;
+                            }
+                        }
+
+                        if (savedSection)  savedSection.style.display  = 'block';
+                        if (noCardInput)   noCardInput.disabled         = true;
+                        if (newCardFields) newCardFields.style.display  = 'none';
+                        if (hostedMsg)     hostedMsg.style.display      = 'none';
+                    } else {
+                        if (savedSection)  savedSection.style.display  = 'none';
+                        if (noCardInput)   noCardInput.disabled         = false;
+                        if (newCardFields) newCardFields.style.display  = 'block';
+                        if (hostedMsg)     hostedMsg.style.display      = 'block';
+                    }
+                }
+
+                /* ── Toggle new-card fields / redirect msg vs saved-card CVV on radio change ── */
+                function togglePayVectorCardFields() {
+                    var selectors    = document.querySelectorAll('input[name="payvector_saved_card"]:not([type="hidden"])');
+                    var savedCvvField = document.getElementById('payvector-saved-cvv');
+                    var newCardFields = document.getElementById('payvector-new-card-fields');
+                    var hostedMsg     = document.getElementById('payvector-hosted-redirect-msg');
+
+                    var selectedVal = 'new';
+                    for (var i = 0; i &lt; selectors.length; i++) {
+                        if (selectors[i].checked) { selectedVal = selectors[i].value; break; }
+                    }
+                    var isNew = (selectedVal === 'new');
+
+                    if (savedCvvField) savedCvvField.style.display = isNew ? 'none' : 'block';
+                    if (newCardFields) newCardFields.style.display  = isNew ? 'block' : 'none';
+                    if (hostedMsg)     hostedMsg.style.display      = isNew ? 'block' : 'none';
+                }
+
+                function attachRadioListeners() {
+                    var selectors = document.querySelectorAll('input[name="payvector_saved_card"]:not([type="hidden"])');
+                    for (var j = 0; j &lt; selectors.length; j++) {
+                        selectors[j].addEventListener('change', togglePayVectorCardFields);
+                    }
+                }
+
+                /* ── Set 3DS browser data ── */
+                function setBrowserData() {
+                    var el;
+                    el = document.getElementById('pv_browser_java_enabled');
+                    if (el) el.value = navigator.javaEnabled ? navigator.javaEnabled() : false;
+                    el = document.getElementById('pv_browser_language');
+                    if (el) el.value = navigator.language || navigator.userLanguage || 'en-US';
+                    el = document.getElementById('pv_browser_color_depth');
+                    if (el) el.value = screen.colorDepth || 24;
+                    el = document.getElementById('pv_browser_screen_height');
+                    if (el) el.value = screen.height || 1080;
+                    el = document.getElementById('pv_browser_screen_width');
+                    if (el) el.value = screen.width || 1920;
+                    el = document.getElementById('pv_browser_tz');
+                    if (el) el.value = new Date().getTimezoneOffset();
+                }
+
+                function initAll() {
+                    initYearDropdown();
+                    initSavedCardUI();
+                    attachRadioListeners();
+                    togglePayVectorCardFields();
+                    setBrowserData();
+                }
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', initAll);
+                } else {
+                    initAll();
+                }
+            })();
+        </script>
+    </template>
+
+
+    <!-- ============================================================
+         PayVector: 3D Secure Page (matches Zen Cart tpl_payvector_3ds_default)
+         ============================================================ -->
+    <template id="payvector_3ds_page" name="PayVector 3D Secure Verification">
+        <div style="max-width: 900px; margin: 20px auto; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); padding: 24px; text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+            <h3 style="margin: 0 0 10px 0; font-size: 22px; font-weight: 600; color: #212529;">
+                3D Secure Verification
+            </h3>
+            <p style="margin: 0 0 20px 0; font-size: 14px; color: #6c757d; line-height: 1.5;">
+                You are enrolled for 3D Secure Verification. Your card will not be charged until you verify the transaction. For your security, please complete the verification below. Do not close or refresh this page.
+            </p>
+
+            <!-- 3DS iframe (matches Zen Cart threeDSecureFrame) -->
+            <iframe name="threeDSecureFrame" id="threeDSecureFrame" width="100%" height="750" frameborder="0" style="width: 100%; min-width: 100%; min-height: 750px; border: 0;"></iframe>
+
+            <!-- Form that auto-submits into the iframe (matches Zen Cart threeds_form) -->
+            <form id="threeds_form" t-att-action="acs_url" method="POST" t-att-target="target or 'threeDSecureFrame'">
+                <t t-foreach="(form_params or {}).items()" t-as="param">
+                    <input type="hidden" t-att-name="param[0]" t-att-value="param[1]"/>
+                </t>
+            </form>
+
+            <script type="text/javascript">
+                (function() {
+                    function submit3DS() {
+                        var form = document.getElementById('threeds_form');
+                        if (form) {
+                            form.target = "_top";
+                            form.submit();
+                        }
+                    }
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', submit3DS);
+                    } else {
+                        submit3DS();
+                    }
+                })();
+            </script>
+        </div>
+    </template>
+
+</odoo>

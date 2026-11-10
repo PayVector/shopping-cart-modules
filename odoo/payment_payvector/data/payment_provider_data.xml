@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <record id="payment_provider_payvector" model="payment.provider">
+        <field name="name">PayVector</field>
+        <field name="code">payvector</field>
+        <field name="image_128" type="bytes" file="payment_payvector/static/description/icon.png"/>
+        <field name="payvector_integration_mode">hosted</field>
+        <field name="redirect_form_view_id" ref="payment_payvector.redirect_form"/>
+        <field name="allow_tokenization">False</field>
+    </record>
+
+
+</odoo>
+
+
+
+
